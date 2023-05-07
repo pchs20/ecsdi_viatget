@@ -88,6 +88,30 @@
 #    Data properties
 #################################################################
 
+###  http://webprotege.stanford.edu/esCentric
+<http://webprotege.stanford.edu/esCentric> rdf:type owl:DatatypeProperty ;
+                                           rdfs:subPropertyOf owl:topDataProperty ;
+                                           rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
+                                           rdfs:range xsd:boolean ;
+                                           rdfs:label "esCentric" .
+
+
+###  http://webprotege.stanford.edu/nom
+<http://webprotege.stanford.edu/nom> rdf:type owl:DatatypeProperty ;
+                                     rdfs:subPropertyOf owl:topDataProperty ;
+                                     rdfs:domain <http://webprotege.stanford.edu/Ciutat> ;
+                                     rdfs:range xsd:string ;
+                                     rdfs:label "nom" .
+
+
+###  http://webprotege.stanford.edu/preuMaxim
+<http://webprotege.stanford.edu/preuMaxim> rdf:type owl:DatatypeProperty ;
+                                           rdfs:subPropertyOf owl:topDataProperty ;
+                                           rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
+                                           rdfs:range xsd:float ;
+                                           rdfs:label "preu maxim" .
+
+
 ###  http://webprotege.stanford.edu/ecsdi_viatget/centric
 <http://webprotege.stanford.edu/ecsdi_viatget/centric> rdf:type owl:DatatypeProperty ;
                                                        rdfs:subPropertyOf owl:topDataProperty ;
@@ -158,6 +182,23 @@
 #################################################################
 #    Classes
 #################################################################
+
+###  http://webprotege.stanford.edu/Agent
+<http://webprotege.stanford.edu/Agent> rdf:type owl:Class ;
+                                       rdfs:label "Agent" .
+
+
+###  http://webprotege.stanford.edu/AgentAllotjament
+<http://webprotege.stanford.edu/AgentAllotjament> rdf:type owl:Class ;
+                                                  rdfs:subClassOf <http://webprotege.stanford.edu/Agent> ;
+                                                  rdfs:label "AgentAllotjament" .
+
+
+###  http://webprotege.stanford.edu/AgentTransport
+<http://webprotege.stanford.edu/AgentTransport> rdf:type owl:Class ;
+                                                rdfs:subClassOf <http://webprotege.stanford.edu/Agent> ;
+                                                rdfs:label "AgentTransport" .
+
 
 ###  http://webprotege.stanford.edu/Ciutat
 <http://webprotege.stanford.edu/Ciutat> rdf:type owl:Class ;
