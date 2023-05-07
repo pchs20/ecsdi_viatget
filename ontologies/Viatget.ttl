@@ -1,0 +1,222 @@
+@prefix : <urn:webprotege:ontology:f284b032-799d-4c40-8f60-a429799ce267#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <urn:webprotege:ontology:f284b032-799d-4c40-8f60-a429799ce267> .
+
+<urn:webprotege:ontology:f284b032-799d-4c40-8f60-a429799ce267> rdf:type owl:Ontology .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://webprotege.stanford.edu/informaDelPaquet
+<http://webprotege.stanford.edu/informaDelPaquet> rdf:type owl:ObjectProperty ;
+                                                  rdfs:subPropertyOf owl:topObjectProperty ;
+                                                  rdfs:domain <http://webprotege.stanford.edu/PaquetTancat> ;
+                                                  rdfs:range <http://webprotege.stanford.edu/ecsdi_viatget/Paquet> ;
+                                                  rdfs:label "informa del paquet"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/deCiutat
+<http://webprotege.stanford.edu/ecsdi_viatget/deCiutat> rdf:type owl:ObjectProperty ;
+                                                        rdfs:subPropertyOf owl:topObjectProperty ;
+                                                        rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
+                                                        rdfs:range <http://webprotege.stanford.edu/Ciutat> ;
+                                                        rdfs:label "de ciutat"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/deLaCompanyia
+<http://webprotege.stanford.edu/ecsdi_viatget/deLaCompanyia> rdf:type owl:ObjectProperty ;
+                                                             rdfs:subPropertyOf owl:topObjectProperty ;
+                                                             rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                             rdfs:range <http://webprotege.stanford.edu/ecsdi_viatget/CompanyiaTransport> ;
+                                                             rdfs:label "de la companyia"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/ofereix
+<http://webprotege.stanford.edu/ecsdi_viatget/ofereix> rdf:type owl:ObjectProperty ;
+                                                       rdfs:subPropertyOf owl:topObjectProperty ;
+                                                       rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/PossiblesAllotjaments> ;
+                                                       rdfs:range <http://webprotege.stanford.edu/Ciutat> ;
+                                                       rdfs:label "ofereix"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/teAllotjament
+<http://webprotege.stanford.edu/ecsdi_viatget/teAllotjament> rdf:type owl:ObjectProperty ;
+                                                             rdfs:subPropertyOf owl:topObjectProperty ;
+                                                             rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Paquet> ;
+                                                             rdfs:range <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ;
+                                                             rdfs:label "te allotjament"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/teCiutat
+<http://webprotege.stanford.edu/ecsdi_viatget/teCiutat> rdf:type owl:ObjectProperty ;
+                                                        rdfs:subPropertyOf owl:topObjectProperty ;
+                                                        rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ;
+                                                        rdfs:range <http://webprotege.stanford.edu/Ciutat> ;
+                                                        rdfs:label "te ciutat"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/teComAPuntFinal
+<http://webprotege.stanford.edu/ecsdi_viatget/teComAPuntFinal> rdf:type owl:ObjectProperty ;
+                                                               rdfs:subPropertyOf owl:topObjectProperty ;
+                                                               rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ;
+                                                               rdfs:range <http://webprotege.stanford.edu/Ciutat> ;
+                                                               rdfs:label "te com a punt final"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/teComAPuntInici
+<http://webprotege.stanford.edu/ecsdi_viatget/teComAPuntInici> rdf:type owl:ObjectProperty ;
+                                                               rdfs:subPropertyOf owl:topObjectProperty ;
+                                                               rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ;
+                                                               rdfs:range <http://webprotege.stanford.edu/Ciutat> ;
+                                                               rdfs:label "te com a punt inici"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/teTransport
+<http://webprotege.stanford.edu/ecsdi_viatget/teTransport> rdf:type owl:ObjectProperty ;
+                                                           rdfs:subPropertyOf owl:topObjectProperty ;
+                                                           rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Paquet> ;
+                                                           rdfs:range <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                           rdfs:label "te transport"@es .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/centric
+<http://webprotege.stanford.edu/ecsdi_viatget/centric> rdf:type owl:DatatypeProperty ;
+                                                       rdfs:subPropertyOf owl:topDataProperty ;
+                                                       rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ;
+                                                       rdfs:range xsd:boolean ;
+                                                       rdfs:label "centric"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/data
+<http://webprotege.stanford.edu/ecsdi_viatget/data> rdf:type owl:DatatypeProperty ;
+                                                    rdfs:subPropertyOf owl:topDataProperty ;
+                                                    rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                    rdfs:range xsd:dateTime ;
+                                                    rdfs:label "data"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/dataFi
+<http://webprotege.stanford.edu/ecsdi_viatget/dataFi> rdf:type owl:DatatypeProperty ;
+                                                      rdfs:subPropertyOf owl:topDataProperty ;
+                                                      rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ,
+                                                                  <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
+                                                      rdfs:range xsd:dateTime ;
+                                                      rdfs:label "data fi"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/dataInici
+<http://webprotege.stanford.edu/ecsdi_viatget/dataInici> rdf:type owl:DatatypeProperty ;
+                                                         rdfs:subPropertyOf owl:topDataProperty ;
+                                                         rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ,
+                                                                     <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
+                                                         rdfs:range xsd:dateTime ;
+                                                         rdfs:label "data inici"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/pressupost
+<http://webprotege.stanford.edu/ecsdi_viatget/pressupost> rdf:type owl:DatatypeProperty ;
+                                                          rdfs:subPropertyOf owl:topDataProperty ;
+                                                          rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ;
+                                                          rdfs:range xsd:float ;
+                                                          rdfs:label "pressupost"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/preu
+<http://webprotege.stanford.edu/ecsdi_viatget/preu> rdf:type owl:DatatypeProperty ;
+                                                    rdfs:subPropertyOf owl:topDataProperty ;
+                                                    rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ,
+                                                                <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                    rdfs:range xsd:float ;
+                                                    rdfs:label "preu"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/tipus
+<http://webprotege.stanford.edu/ecsdi_viatget/tipus> rdf:type owl:DatatypeProperty ;
+                                                     rdfs:subPropertyOf owl:topDataProperty ;
+                                                     rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                     rdfs:range xsd:string ;
+                                                     rdfs:label "tipus"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/allotjamentC%C3%A8ntric
+<http://webprotege.stanford.edu/ecsdi_viatget/allotjamentC%C3%A8ntric> rdf:type owl:DatatypeProperty ;
+                                                                       rdfs:subPropertyOf owl:topDataProperty ;
+                                                                       rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ;
+                                                                       rdfs:range xsd:boolean ;
+                                                                       rdfs:label "allotjament centric"@es .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://webprotege.stanford.edu/Ciutat
+<http://webprotege.stanford.edu/Ciutat> rdf:type owl:Class ;
+                                        rdfs:subClassOf owl:Thing ;
+                                        rdfs:label "Ciutat"@es .
+
+
+###  http://webprotege.stanford.edu/DemanarViatge
+<http://webprotege.stanford.edu/DemanarViatge> rdf:type owl:Class ;
+                                               rdfs:subClassOf <http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU> ;
+                                               rdfs:label "Demanar viatge"@es .
+
+
+###  http://webprotege.stanford.edu/PaquetTancat
+<http://webprotege.stanford.edu/PaquetTancat> rdf:type owl:Class ;
+                                              rdfs:subClassOf <http://webprotege.stanford.edu/ecsdi_viatget/Resposta> ;
+                                              rdfs:label "Paquet tancat"@es .
+
+
+###  http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU
+<http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU> rdf:type owl:Class ;
+                                                         rdfs:label "Accio"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/Allotjament
+<http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> rdf:type owl:Class ;
+                                                           rdfs:label "Allotjament"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/CompanyiaTransport
+<http://webprotege.stanford.edu/ecsdi_viatget/CompanyiaTransport> rdf:type owl:Class ;
+                                                                  rdfs:label "Companyia transport"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments
+<http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> rdf:type owl:Class ;
+                                                                   rdfs:subClassOf <http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU> ;
+                                                                   rdfs:label "Obtenir allotjaments"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/Paquet
+<http://webprotege.stanford.edu/ecsdi_viatget/Paquet> rdf:type owl:Class ;
+                                                      rdfs:label "Paquet"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/PossiblesAllotjaments
+<http://webprotege.stanford.edu/ecsdi_viatget/PossiblesAllotjaments> rdf:type owl:Class ;
+                                                                     rdfs:subClassOf <http://webprotege.stanford.edu/ecsdi_viatget/Resposta> ;
+                                                                     rdfs:label "Possibles allotjaments"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/Resposta
+<http://webprotege.stanford.edu/ecsdi_viatget/Resposta> rdf:type owl:Class ;
+                                                        rdfs:label "Resposta"@es .
+
+
+###  http://webprotege.stanford.edu/ecsdi_viatget/Transport
+<http://webprotege.stanford.edu/ecsdi_viatget/Transport> rdf:type owl:Class ;
+                                                         rdfs:label "Transport"@es .
+
+
+###  Generated by the OWL API (version 4.5.13) https://github.com/owlcs/owlapi
