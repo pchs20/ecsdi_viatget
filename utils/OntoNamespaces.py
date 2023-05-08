@@ -39,5 +39,5 @@ GEO = Namespace('http://www.w3.org/2003/01/geo/wgs84_pos#')
 DSO = Namespace('http://www.semanticweb.org/directory-service-ontology#')
 
 # La nostra ontologia
-# PANT = Namespace('urn:webprotege:ontology:f284b032-799d-4c40-8f60-a429799ce267')
+PANT = Namespace('urn:webprotege:ontology:f284b032-799d-4c40-8f60-a429799ce267')
 

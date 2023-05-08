@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Agent recol·lector de possibilitats d'allotjament
+Actor extern proveïdor d'allotjaments
 """
 
 from multiprocessing import Process, Queue
@@ -18,8 +18,10 @@ from utils.Agent import Agent
 from utils.Logging import config_logger
 from utils.Util import gethostname, registrar_agent, aconseguir_agent
 
-from utils.OntoNamespaces import ACL, DSO
-from ontologies.Viatget import PANT
+from utils.OntoNamespaces import ACL, DSO, PANT
+
+from amadeus import Client, ResponseError
+from utils.APIKeys import AMADEUS_KEY, AMADEUS_SECRET
 
 
 # Paràmetres de la línia de comandes
@@ -40,7 +42,7 @@ args = parser.parse_args()
 
 # Configuration stuff
 if args.port is None:
-    port = 9010
+    port = 9011
 else:
     port = args.port
 
@@ -75,8 +77,8 @@ agn = Namespace("http://www.agentes.org#")
 mss_cnt = 0
 
 # Datos del Agente
-RecollectorAllotjaments = Agent('RecollectorAllotjaments',
-                  agn.RecollectorAllotjaments,
+ProveidorAllotjaments = Agent('ProveidorAllotjaments',
+                  agn.ProveidorAllotjaments,
                   'http://%s:%d/comm' % (hostaddr, port),
                   'http://%s:%d/Stop' % (hostaddr, port))
 
@@ -94,6 +96,12 @@ dsgraph.bind('pant', PANT)
 # Cola de comunicacion entre procesos
 cola1 = Queue()
 
+# Amadeus
+amadeus = Client(
+    client_id=AMADEUS_KEY,
+    client_secret=AMADEUS_SECRET
+)
+
 
 def register_message():
     """
@@ -109,7 +117,7 @@ def register_message():
 
     global mss_cnt
 
-    # gr = registrar_agent(RecollectorAllotjaments, DirectoryAgent, PANT.AgentAllotjament, mss_cnt)
+    # gr = registrar_agent(ProveidorAllotjaments, DirectoryAgent, PANT.AgentAllotjament, mss_cnt)
 
     mss_cnt += 1
 
@@ -142,7 +150,7 @@ def comunicacion():
     global dsgraph
     global mss_cnt
 
-    logger.info('Petició de cerca allotjaments rebuda')
+    logger.info('Petició per obtenir tots els allotjaments rebuda')
 
     # Extraemos el mensaje y creamos un grafo con el
     """message = request.args['content']
@@ -155,16 +163,8 @@ def comunicacion():
     peticio = PANT['Ciutat']
     gm.add((peticio, RDF.type, PANT.ObtenirAllotjaments))
 
-    ciutat = PANT['Ciutat']
-    gm.add((ciutat, RDF.type, PANT.Ciutat))
-    gm.add((ciutat, PANT.nom, Literal('Barcelona')))
-    gm.add((peticio, PANT.teCiutat, URIRef(ciutat)))
-    gm.add((peticio, PANT.dataInici, Literal('20-02-20')))
-    gm.add((peticio, PANT.dataFi, Literal('20-02-20')))
-    gm.add((peticio, PANT.preuMaxim, Literal(500)))
-    gm.add((peticio, PANT.esCentric, Literal(True)))
-    gmsg = build_message(gm, perf=ACL.request, sender=RecollectorAllotjaments.uri,
-                        receiver=RecollectorAllotjaments.uri, content=peticio, msgcnt=1)
+    gmsg = build_message(gm, perf=ACL.request, sender=ProveidorAllotjaments.uri,
+                        receiver=ProveidorAllotjaments.uri, content=peticio, msgcnt=1)
 
     #msg = get_message_properties(gm)
     msg = get_message_properties(gmsg)
@@ -172,14 +172,14 @@ def comunicacion():
     # Comprobamos que sea un mensaje FIPA ACL
     if msg is None:
         # Si no es, respondemos que no hemos entendido el mensaje
-        gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorAllotjaments.uri, msgcnt=mss_cnt)
+        gr = build_message(Graph(), ACL['not-understood'], sender=ProveidorAllotjaments.uri, msgcnt=mss_cnt)
     else:
         # Obtenemos la performativa
         perf = msg['performative']
 
         if perf != ACL.request:
             # Si no es un request, respondemos que no hemos entendido el mensaje
-            gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorAllotjaments.uri, msgcnt=mss_cnt)
+            gr = build_message(Graph(), ACL['not-understood'], sender=ProveidorAllotjaments.uri, msgcnt=mss_cnt)
         else:
             # Averiguamos el tipo de la accion
             if 'content' in msg:
@@ -189,44 +189,53 @@ def comunicacion():
                 # PROCÉS DE TRACTAMENT DE LA REQUEST
 
                 if accio == PANT.ObtenirAllotjaments:
-                    # Agafem la relació amb la ciutat (és una relació) i el nom de la ciutat
-                    ciutat_desti = gm.value(subject=content, predicate=PANT.teCiutat)
-                    ciutat = str(gm.value(subject=ciutat_desti, predicate=PANT.nom))
-
-                    # Agafem dates d'inici i final (son propietats directament)
-                    data_ini = str(gm.value(subject=content, predicate=PANT.dataInici))
-                    data_fi = str(gm.value(subject=content, predicate=PANT.dataFi))
-
-                    # Afagem el preu màxim i si l'allotjament ha de ser o no cèntric
-                    preuMax = float(gm.value(subject=content, predicate=PANT.preuMaxim))
-                    esCentric = bool(gm.value(subject=content, predicate=PANT.esCentric))
-
-                    # Obtenim les possibilitats i retornem la informació
-                    possibilitats = obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric)
-                    gr = build_message(possibilitats,
+                    allotjaments = obtenir_allotjaments()
+                    gr = build_message(allotjaments,
                                        ACL['inform'],
-                                       sender=RecollectorAllotjaments.uri,
+                                       sender=ProveidorAllotjaments.uri,
                                        msgcnt=mss_cnt,
                                        receiver=msg['sender'])
-
                 else:
                     # Si no és una petició d'allotjaments
-                    gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorAllotjaments.uri,
+                    gr = build_message(Graph(), ACL['not-understood'], sender=ProveidorAllotjaments.uri,
                                        msgcnt=mss_cnt)
     mss_cnt += 1
 
-    logger.info('Petició de cerca allotjaments resposta')
+    logger.info("Petició d'obtenir allotjaments resposta")
 
     return gr.serialize(format='xml')
 
 
-def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric):
-    # ToDo
-    """
-    logger.info("Busquem un actor extern d'allotjaments")
-    actorAllotjaments = Agent(None, None, None, None)
-    aconseguir_agent(RecollectorAllotjaments, actorAllotjaments, DirectoryAgent, agn.ActorAllotjaments, mss_cnt)
-    """
+def obtenir_allotjaments():
+    # ToDo: Potser intentem deshardcodejar les ciutat...
+    ciutats = ["BCN"]
+
+    gr = Graph()
+    gr.bind('PANT', PANT)
+
+    # Per cada ciutat, busquem allotjaments a Amadeus
+    """for ciutat in ciutats:
+        resposta = amadeus.shopping.hotel_offers.get(cityCode=ciutat).data"""
+
+
+    # Per ara, ens inventem les dades
+    bcn = PANT['Ciutat-Barcelona']
+    gr.add((bcn, RDF.type, PANT.Ciutat))
+    gr.add((bcn, PANT.nom, Literal('Barcelona')))
+
+    i = 0
+    while i < 10:
+        allotjament = PANT['Allotjament'+str(i)]
+        gr.add((allotjament, RDF.type, PANT.Allotjament))
+        gr.add((allotjament, PANT.centric, Literal(True)))
+        gr.add((allotjament, PANT.teCiutat, URIRef(bcn)))
+        gr.add((allotjament, PANT.preu, Literal(100)))
+
+        i += 1
+
+    return gr
+
+
 
 def tidyup():
     """
