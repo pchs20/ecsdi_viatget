@@ -20,6 +20,7 @@ from utils.Util import gethostname, registrar_agent, aconseguir_agent
 
 from utils.OntoNamespaces import ACL, DSO
 from ontologies.Viatget import PANT
+from datetime import datetime, timedelta
 
 
 # Paràmetres de la línia de comandes
@@ -93,6 +94,9 @@ dsgraph.bind('pant', PANT)
 
 # Cola de comunicacion entre procesos
 cola1 = Queue()
+
+# Data de l'últim refresh dels allotjaments
+ultimRefresh = datetime.today()
 
 
 def register_message():
@@ -220,11 +224,11 @@ def comunicacion():
     return gr.serialize(format='xml')
 
 
-def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric):
-    # ToDo
-    logger.info("Busquem un actor extern d'allotjaments")
+def refresh_allotjaments():
+    logger.info('Fem refresh dels allotjaments que tenim guardats')
 
     # Obtenim un actor extern d'allotjaments
+    logger.info('Busquem un actor extern allotjaments')
     actorAllotjaments = Agent(None, None, None, None)
     aconseguir_agent(
         emisor=RecollectorAllotjaments,
@@ -248,16 +252,28 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric
     )
     gr = send_message(missatge, actorAllotjaments.address)
 
-    # Guardem les dades en una BD fictícia
+    # Guardem les dades a la "BD"
+    logger.info('Actualitzem la BD allotjaments')
     gr.serialize(destination='../bd/allotjaments.ttl', format='turtle')
+
+    # Actualitzem la data de l'última actualització
+    global ultimRefresh
+    ultimRefresh = datetime.today()
+
+def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric):
+    # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
+    today = datetime.today()
+    dif = today - ultimRefresh
+    if dif > timedelta(days=1):
+        refresh_allotjaments()
 
     # Recuperem les dades
     gbd = Graph()
     gbd.bind('PANT', PANT)
     gbd.parse(source='../bd/allotjaments.ttl', format='turtle')
 
-    # ToDo: Fer consulta en funció dels paràmetres rebuts a la funció
-    resultat = gr.query(
+    # ToDo: Fer consulta en funció dels paràmetres rebuts a la funció i acabar retornant el resultat
+    resultat = gbd.query(
         query_object="""
         Select ?Allotjament
         where {
@@ -283,8 +299,12 @@ def agentbehavior1():
 
     :return:
     """
+
+    # Poblem la BD d'allotjaments
+    refresh_allotjaments()
+
     # Registramos el agente
-    gr = register_message()
+    register_message()
 
 
 if __name__ == '__main__':

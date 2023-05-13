@@ -191,7 +191,7 @@ def comunicacion():
                                        msgcnt=mss_cnt)
     mss_cnt += 1
 
-    logger.info("Petició d'obtenir allotjaments resposta")
+    logger.info('Petició per obtenir allotjaments resposta')
 
     return gr.serialize(format='xml')
 
