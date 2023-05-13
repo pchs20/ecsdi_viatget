@@ -109,11 +109,11 @@ def register_message():
 
     global mss_cnt
 
-    # gr = registrar_agent(RecollectorAllotjaments, DirectoryAgent, PANT.AgentAllotjament, mss_cnt)
+    gr = registrar_agent(RecollectorAllotjaments, DirectoryAgent, PANT.AgentAllotjament, mss_cnt)
 
     mss_cnt += 1
 
-    # return gr
+    return gr
 
 
 @app.route("/iface", methods=['GET', 'POST'])
@@ -152,10 +152,10 @@ def comunicacion():
     # ToDo: Deshardcodejar
     gm = Graph()
     gm.bind('PANT', PANT)
-    peticio = PANT['Ciutat']
+    peticio = URIRef('https://peticioooo.org')
     gm.add((peticio, RDF.type, PANT.ObtenirAllotjaments))
 
-    ciutat = PANT['Ciutat']
+    ciutat = URIRef('https://ciutatatatatat.org')
     gm.add((ciutat, RDF.type, PANT.Ciutat))
     gm.add((ciutat, PANT.nom, Literal('Barcelona')))
     gm.add((peticio, PANT.teCiutat, URIRef(ciutat)))
@@ -222,11 +222,51 @@ def comunicacion():
 
 def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric):
     # ToDo
-    """
     logger.info("Busquem un actor extern d'allotjaments")
+
+    # Obtenim un actor extern d'allotjaments
     actorAllotjaments = Agent(None, None, None, None)
-    aconseguir_agent(RecollectorAllotjaments, actorAllotjaments, DirectoryAgent, agn.ActorAllotjaments, mss_cnt)
-    """
+    aconseguir_agent(
+        emisor=RecollectorAllotjaments,
+        agent=actorAllotjaments,
+        directori=DirectoryAgent,
+        tipus=agn.ActorAllotjaments,
+        mss_cnt=mss_cnt
+    )
+
+    # Construïm el graf de la petició
+    g = Graph()
+    peticio = URIRef('https://peticio.org')
+    g.add((peticio, RDF.type, PANT.ObtenirAllotjaments))
+    missatge = build_message(
+        g,
+        perf=ACL.request,
+        sender=RecollectorAllotjaments.uri,
+        receiver=actorAllotjaments.uri,
+        content=peticio,
+        msgcnt=mss_cnt
+    )
+    gr = send_message(missatge, actorAllotjaments.address)
+
+    # Guardem les dades en una BD fictícia
+    gr.serialize(destination='../bd/allotjaments.ttl', format='turtle')
+
+    # Recuperem les dades
+    gbd = Graph()
+    gbd.bind('PANT', PANT)
+    gbd.parse(source='../bd/allotjaments.ttl', format='turtle')
+
+    # ToDo: Fer consulta en funció dels paràmetres rebuts a la funció
+    resultat = gr.query(
+        query_object="""
+        Select ?Allotjament
+        where {
+            ?Allotjament PANT:preu "%s" .
+        }
+        LIMIT 30
+    """ % (str(100)), initNs=dict(PANT=PANT))
+
+    return gbd
 
 def tidyup():
     """

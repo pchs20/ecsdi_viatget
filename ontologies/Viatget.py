@@ -11,7 +11,7 @@ from rdflib import URIRef
 from rdflib.namespace import ClosedNamespace
 
 PANT =  ClosedNamespace(
-    uri=URIRef('urn:webprotege:ontology:f284b032-799d-4c40-8f60-a429799ce267'),
+    uri=URIRef('https://ontologia.org#'),
     terms=[
         # Classes
         'Agent',

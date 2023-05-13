@@ -18,7 +18,8 @@ from utils.Agent import Agent
 from utils.Logging import config_logger
 from utils.Util import gethostname, registrar_agent, aconseguir_agent
 
-from utils.OntoNamespaces import ACL, DSO, PANT
+from utils.OntoNamespaces import ACL
+from ontologies.Viatget import PANT
 
 from amadeus import Client, ResponseError
 from utils.APIKeys import AMADEUS_KEY, AMADEUS_SECRET
@@ -117,11 +118,11 @@ def register_message():
 
     global mss_cnt
 
-    # gr = registrar_agent(ProveidorAllotjaments, DirectoryAgent, PANT.AgentAllotjament, mss_cnt)
+    gr = registrar_agent(ProveidorAllotjaments, DirectoryAgent, agn.ActorAllotjaments, mss_cnt)
 
     mss_cnt += 1
 
-    # return gr
+    return gr
 
 
 @app.route("/iface", methods=['GET', 'POST'])
@@ -153,21 +154,10 @@ def comunicacion():
     logger.info('Petició per obtenir tots els allotjaments rebuda')
 
     # Extraemos el mensaje y creamos un grafo con el
-    """message = request.args['content']
+    message = request.args['content']
     gm = Graph()
-    gm.parse(data=message)"""
-
-    # ToDo: Deshardcodejar
-    gm = Graph()
-    gm.bind('PANT', PANT)
-    peticio = PANT['Ciutat']
-    gm.add((peticio, RDF.type, PANT.ObtenirAllotjaments))
-
-    gmsg = build_message(gm, perf=ACL.request, sender=ProveidorAllotjaments.uri,
-                        receiver=ProveidorAllotjaments.uri, content=peticio, msgcnt=1)
-
-    #msg = get_message_properties(gm)
-    msg = get_message_properties(gmsg)
+    gm.parse(data=message, format="xml")
+    msg = get_message_properties(gm)
 
     # Comprobamos que sea un mensaje FIPA ACL
     if msg is None:
@@ -219,13 +209,13 @@ def obtenir_allotjaments():
 
 
     # Per ara, ens inventem les dades
-    bcn = PANT['Ciutat-Barcelona']
+    bcn = URIRef('https://holapoma.org')
     gr.add((bcn, RDF.type, PANT.Ciutat))
     gr.add((bcn, PANT.nom, Literal('Barcelona')))
 
     i = 0
     while i < 10:
-        allotjament = PANT['Allotjament'+str(i)]
+        allotjament = URIRef('allotjament' + str(i))
         gr.add((allotjament, RDF.type, PANT.Allotjament))
         gr.add((allotjament, PANT.centric, Literal(True)))
         gr.add((allotjament, PANT.teCiutat, URIRef(bcn)))
@@ -234,7 +224,6 @@ def obtenir_allotjaments():
         i += 1
 
     return gr
-
 
 
 def tidyup():
