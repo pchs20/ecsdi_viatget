@@ -183,14 +183,17 @@ def comunicacion():
 
                     # Retornem info
                     allotjaments = getAllotjaments(data_ini,data_fi,allotjament_centric,ciutat_desti,pressupost)
-                    gr = build_message()
+
+                    #Operacio calcula millor opcio combinacio transport i allotjament
+
+
+
+                    #gr = build_message()
 
 
 
                 else:
                     gr = build_message(Graph(), ACL['not-understood'], sender=GestorPaquets.uri, msgcnt=mss_cnt)
-
-
 def getAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
     logger.info("DEMANA ALLOTJAMENTS")
 
@@ -209,21 +212,22 @@ def getAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
 
     missatge = build_message(graf,GestorPaquets.uri,agent_allotjament.uri,content,mss_cnt)
     gr = send_message(missatge,agent_allotjament.address)
-    logger.info('no peta')
+
 
     llista_allotjaments = gr.triples((None, RDF.type, PANT.Allotjament))
 
     return llista_allotjaments
-
-
-    """
-
+"""
 def getTransport(puntInici, puntFinal, dataIni, dataFi, preuMax):
     logger.info("DEMANA TRANSPORT")
 
-    content = PANT['peticio_transport_' + str(get_count())]
+    agent_transport = Agent('', '', '', None)
+    aconseguir_agent(GestorPaquets, agent_transport, DirectoryAgent, agn.RecollectorTransport, mss_cnt)
+    logger.info(agent_transport)
 
     graf = Graph()
+    content = URIRef("https://transports.org")
+    graf.add((content, RDF.type))
 
     graf.add((content, RDF.type, PANT.ObtenirTransport))
     graf.add((content, PANT.te_com_a_punt_final, Literal(puntFinal)))
