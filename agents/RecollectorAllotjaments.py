@@ -11,6 +11,7 @@ import socket
 from flask import Flask, request
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
+from rdflib.plugins.sparql import prepareQuery
 
 from utils.FlaskServer import shutdown_server
 from utils.ACLMessages import build_message, send_message, get_message_properties
@@ -273,14 +274,20 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric
     gbd.parse(source='../bd/allotjaments.ttl', format='turtle')
 
     # ToDo: Fer consulta en funció dels paràmetres rebuts a la funció i acabar retornant el resultat
-    resultat = gbd.query(
-        query_object="""
-        Select ?Allotjament
-        where {
-            ?Allotjament PANT:preu "%s" .
+    query = prepareQuery("""
+        PREFIX pant:<https://ontologia.org#>
+        SELECT ?Allotjament
+        WHERE {
+            ?Allotjament rdf:type pant:Allotjament .
+            ?Allotjament pant:teCiutat ?ciutat .
+            ?ciutat rdf:type pant:Ciutat .
+            ?ciutat pant:nom ?nomCiutat .
+            FILTER(?nomCiutat = "%s")
         }
         LIMIT 30
-    """ % (str(100)), initNs=dict(PANT=PANT))
+    """ % (ciutat, ))
+
+    print(len(gbd.query(query)))
 
     return gbd
 
