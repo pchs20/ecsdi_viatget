@@ -18,7 +18,7 @@ from utils.Agent import Agent
 from utils.Logging import config_logger
 from utils.Util import gethostname, registrar_agent, aconseguir_agent
 
-from utils.OntoNamespaces import ACL
+from ontologies.ACL import ACL
 from ontologies.Viatget import PANT
 
 from amadeus import Client, ResponseError

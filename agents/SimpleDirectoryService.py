@@ -29,7 +29,8 @@ from utils.FlaskServer import shutdown_server
 from utils.Agent import Agent
 from utils.ACLMessages import build_message, get_message_properties
 from utils.Logging import config_logger
-from utils.OntoNamespaces import ACL, DSO
+from ontologies.ACL import ACL
+from ontologies.DSO import DSO
 import socket
 
 __author__ = 'javier'
