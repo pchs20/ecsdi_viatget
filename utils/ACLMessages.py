@@ -13,7 +13,7 @@ __author__ = 'javier'
 from rdflib import Graph, URIRef
 import requests
 from rdflib.namespace import RDF, OWL
-from utils.OntoNamespaces import ACL, Namespace
+from .OntoNamespaces import ACL, Namespace
 
 agn = Namespace("http://www.agentes.org#")
 

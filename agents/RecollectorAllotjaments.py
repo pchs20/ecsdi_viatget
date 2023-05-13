@@ -12,14 +12,14 @@ from flask import Flask, request
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 
-from utils.FlaskServer import shutdown_server
-from utils.ACLMessages import build_message, send_message, get_message_properties
-from utils.Agent import Agent
-from utils.Logging import config_logger
-from utils.Util import gethostname, registrar_agent, aconseguir_agent
+from ecsdi_viatget.utils.FlaskServer import shutdown_server
+from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
+from ecsdi_viatget.utils.Agent import Agent
+from ecsdi_viatget.utils.Logging import config_logger
+from ecsdi_viatget.utils.Util import gethostname, registrar_agent, aconseguir_agent
 
-from utils.OntoNamespaces import ACL, DSO
-from ontologies.Viatget import PANT
+from ecsdi_viatget.utils.OntoNamespaces import ACL, DSO
+from ecsdi_viatget.ontologies.Viatget import PANT
 
 
 # Paràmetres de la línia de comandes

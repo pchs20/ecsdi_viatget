@@ -17,20 +17,20 @@ directory-service-ontology.owl
 @author: javier
 """
 
-from multiprocessing import Process, Queue
 import argparse
 import logging
+import socket
+from multiprocessing import Process, Queue
 
 from flask import Flask, request, render_template
-from rdflib import Graph, RDF, Namespace, RDFS, Literal
+from rdflib import Graph, RDF, Namespace, RDFS
 from rdflib.namespace import FOAF
 
-from utils.FlaskServer import shutdown_server
-from utils.Agent import Agent
-from utils.ACLMessages import build_message, get_message_properties
-from utils.Logging import config_logger
-from utils.OntoNamespaces import ACL, DSO
-import socket
+from ecsdi_viatget.utils.ACLMessages import build_message, get_message_properties
+from ecsdi_viatget.utils.Agent import Agent
+from ecsdi_viatget.utils.FlaskServer import shutdown_server
+from ecsdi_viatget.utils.Logging import config_logger
+from ecsdi_viatget.utils.OntoNamespaces import ACL, DSO
 
 __author__ = 'javier'
 
