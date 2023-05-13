@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulari</title>
+</head>
+<body>
+<form method="post" action="">
+
+    <!-- ciutat ini  -->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Data d'inici:
+        </label>
+        <select name="ciutatIni" required>
+            <option value="Barcelona" >Barcelona</option>
+            <option value="Berlin" >Berlin</option>
+        </select>
+    </div>
+    
+    <br/>
+    
+    <!-- desti -->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Desti: 
+        </label>
+        <select name="ciutatFi" required>
+            <option value="Berlin" >Berlin</option>
+            <option value="Barcelona" >Barcelona</option>
+        </select>
+    </div>
+    <br/>
+    
+    <!-- data ini -->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Data d'inici:
+        </label>
+        <input type="date" name="dataIni" required/>
+    </div>
+    <br/>
+
+    <!-- data fi -->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Data final: 
+        </label>
+        <input type="date" name="dataFi" required/>
+    </div>
+    
+    <br/>
+    
+    <!-- presupost -->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Pressupost: 
+        </label>
+        <input type="number" name="presupost" required/>
+    </div>
+    <br/>
+
+    <!-- res, algo, normal i molt-->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            ludica
+        </label>
+        <select name="ludica" required>
+            <option value="0" >Res</option>
+            <option value="1" >Algo</option>
+            <option value="2" >Normal</option>
+            <option value="3" >Molt</option>
+        </select>
+    </div>
+    <br/>
+
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            festiva
+        </label>
+        <select name="festiva" required>
+            <option value="0" >Res</option>
+            <option value="1" >Algo</option>
+            <option value="2" >Normal</option>
+            <option value="3" >Molt</option>
+        </select>
+    </div>
+    <br/>
+
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            cultural
+        </label>
+        <select name="cultural" required>
+            <option value="0" >Res</option>
+            <option value="1" >Algo</option>
+            <option value="2" >Normal</option>
+            <option value="3" >Molt</option>
+        </select>
+    </div>
+    <br/>
+
+    <!-- centric -->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Centric: 
+        </label>
+        <input type="checkbox" name="centric" style="margin-top: 5px;">
+    </div>
+    <br/>
+
+    <p>
+        <button type="submit">Send</button>
+    </p>
+</form>
+</body>
+</html>
