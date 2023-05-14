@@ -1,6 +1,0 @@
-#!/home/nora/PycharmProjects/ECSDI/ecsdi_viatget/venv/bin/python3.8
-
-from pif.commands.get_public_ip import main
-
-if __name__ == "__main__":
-    main()
