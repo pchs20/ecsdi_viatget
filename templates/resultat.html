@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resultat</title>
+</head>
+<body>
+    <h1>El resultat obtingut es el següent: </h1>
+
+    <p>Allotjament: {{allotjament}}</p>
+
+    <p>Vol d'anada: {{volAnada}}</p>
+    <p>Vol de tornada: {{volTornada}}</p>
+
+    <div>
+        <ul>
+            {%  for act in activitats %}
+            <li>
+                {{act}}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</body>
+</html>

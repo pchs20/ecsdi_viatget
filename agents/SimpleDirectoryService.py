@@ -26,11 +26,13 @@ from flask import Flask, request, render_template
 from rdflib import Graph, RDF, Namespace, RDFS
 from rdflib.namespace import FOAF
 
-from ecsdi_viatget.utils.ACLMessages import build_message, get_message_properties
-from ecsdi_viatget.utils.Agent import Agent
-from ecsdi_viatget.utils.FlaskServer import shutdown_server
-from ecsdi_viatget.utils.Logging import config_logger
-from ecsdi_viatget.utils.OntoNamespaces import ACL, DSO
+from utils.FlaskServer import shutdown_server
+from utils.Agent import Agent
+from utils.ACLMessages import build_message, get_message_properties
+from utils.Logging import config_logger
+from ontologies.ACL import ACL
+from ontologies.DSO import DSO
+import socket
 
 __author__ = 'javier'
 

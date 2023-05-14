@@ -19,9 +19,11 @@ import socket
 from pif import get_public_ip
 from rdflib import Graph, Literal
 from rdflib.namespace import RDF, FOAF
-from ecsdi_viatget.utils.ACLMessages import send_message, build_message
-from ecsdi_viatget.utils.OntoNamespaces import ACL, DSO, Namespace
-from ecsdi_viatget.utils.Logging import config_logger
+from utils.ACLMessages import send_message, build_message
+from utils.OntoNamespaces import Namespace
+from ontologies.ACL import ACL
+from ontologies.DSO import DSO
+from utils.Logging import config_logger
 
 agn = Namespace("http://www.agentes.org#")
 logger = config_logger(level=1)

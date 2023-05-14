@@ -7,6 +7,7 @@ from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
+import random
 
 from flask import Flask, request
 from rdflib import Graph, Namespace, Literal, URIRef
@@ -18,7 +19,7 @@ from utils.Agent import Agent
 from utils.Logging import config_logger
 from utils.Util import gethostname, registrar_agent, aconseguir_agent
 
-from utils.OntoNamespaces import ACL
+from ontologies.ACL import ACL
 from ontologies.Viatget import PANT
 
 from amadeus import Client, ResponseError
@@ -191,35 +192,54 @@ def comunicacion():
                                        msgcnt=mss_cnt)
     mss_cnt += 1
 
-    logger.info("Petició d'obtenir allotjaments resposta")
+    logger.info('Petició per obtenir allotjaments resposta')
 
     return gr.serialize(format='xml')
 
 
 def obtenir_allotjaments():
     # ToDo: Potser intentem deshardcodejar les ciutat...
-    ciutats = ["BCN"]
+    ciutats = ["BCN", "BER"]
 
     gr = Graph()
     gr.bind('PANT', PANT)
 
-    # Per cada ciutat, busquem allotjaments a Amadeus
-    """for ciutat in ciutats:
-        resposta = amadeus.shopping.hotel_offers.get(cityCode=ciutat).data"""
-
-
     # Per ara, ens inventem les dades
-    bcn = URIRef('https://holapoma.org')
+    bcn = URIRef('https://ciutats.org/Barcelona')
     gr.add((bcn, RDF.type, PANT.Ciutat))
     gr.add((bcn, PANT.nom, Literal('Barcelona')))
 
+    ber = URIRef('https://ciutats.org/Berlin')
+    gr.add((ber, RDF.type, PANT.Ciutat))
+    gr.add((ber, PANT.nom, Literal('Berlin')))
+
+    ciutatsObj = {
+        "BCN": bcn,
+        "BER": ber
+    }
+
+    nomsAllotjaments = {
+        "BCN": ['NH BARCELONA EIXAMPLE',
+                'GRAN HOTEL HAVANA',
+                'IBIS BARCELONA MERIDIANA',
+                'EXPO HOTEL BARCELONA',
+                'HOTEL SIDROME VILADECANS'],
+        "BER": ['NHOW BERLIN',
+                'NH BERLIN KURFURSTENDAMM',
+                'NH BERLIN CITY OST',
+                'MERCURE HOTEL MOA BERLIN',
+                'MELIA BERLIN']
+    }
+
     i = 0
-    while i < 10:
-        allotjament = URIRef('allotjament' + str(i))
-        gr.add((allotjament, RDF.type, PANT.Allotjament))
-        gr.add((allotjament, PANT.centric, Literal(True)))
-        gr.add((allotjament, PANT.teCiutat, URIRef(bcn)))
-        gr.add((allotjament, PANT.preu, Literal(100)))
+    while i < 500:
+        for ciutat in ciutats:
+            allotjament = URIRef('allotjament' + ciutat + str(i))
+            gr.add((allotjament, RDF.type, PANT.Allotjament))
+            gr.add((allotjament, PANT.nom, Literal(random.choice(nomsAllotjaments[ciutat]))))
+            gr.add((allotjament, PANT.centric, Literal(random.choice([True, False]))))
+            gr.add((allotjament, PANT.teCiutat, URIRef(ciutatsObj[ciutat])))
+            gr.add((allotjament, PANT.preu, Literal(random.uniform(40.0, 200.0))))
 
         i += 1
 
