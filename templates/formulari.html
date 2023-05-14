@@ -4,6 +4,13 @@
     <title>Formulari</title>
 </head>
 <body>
+<h1>Demana'ns el teu viatget!</h1>
+
+    {% if error %}
+        <p style="color: red">{{ error }}</p>
+        <br>
+    {% endif %}
+
 <form method="post" action="">
 
     <!-- ciutat ini  -->
@@ -55,7 +62,7 @@
         <label>
             Pressupost: 
         </label>
-        <input type="number" name="presupost" required/>
+        <input type="number" name="pressupost" required/>
     </div>
     <br/>
 
@@ -109,7 +116,7 @@
     <br/>
 
     <p>
-        <button type="submit">Send</button>
+        <button type="submit">Planificar!</button>
     </p>
 </form>
 </body>

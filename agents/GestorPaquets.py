@@ -8,18 +8,19 @@ import logging
 import argparse
 import socket
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 
-from ecsdi_viatget.utils.FlaskServer import shutdown_server
-from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
-from ecsdi_viatget.utils.Agent import Agent
-from ecsdi_viatget.utils.Logging import config_logger
-from ecsdi_viatget.utils.Util import gethostname, registrar_agent, aconseguir_agent
+from utils.FlaskServer import shutdown_server
+from utils.ACLMessages import build_message, send_message, get_message_properties
+from utils.Agent import Agent
+from utils.Logging import config_logger
+from utils.Util import gethostname, registrar_agent, aconseguir_agent
+from utils.ExcepcioGeneracioViatge import ExcepcioGeneracioViatge
 
-from ecsdi_viatget.utils.OntoNamespaces import ACL, DSO
-from ecsdi_viatget.ontologies.Viatget import PANT
+from ontologies.ACL import ACL
+from ontologies.Viatget import PANT
 
 
 # Paràmetres de la línia de comandes
@@ -40,7 +41,7 @@ args = parser.parse_args()
 
 # Configuration stuff
 if args.port is None:
-    port = 9010
+    port = 9001
 else:
     port = args.port
 
@@ -63,7 +64,7 @@ else:
     dhostname = args.dhost
 
 # Flask stuff
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../templates')
 if not args.verbose:
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
@@ -109,19 +110,46 @@ def register_message():
     logger.info("Ens registrem")
     global mss_cnt
 
-    """gr = registrar_agent(GestorPaquets,DirectoryAgent,PANT.AgentGestorPaquets,mss_cnt)"""
+    gr = registrar_agent(GestorPaquets, DirectoryAgent, agn.AgentGestorPaquets, mss_cnt)
 
     mss_cnt +=1
 
-    """return gr"""
+    return gr
 
-@app.route("/iface", methods=['GET', 'POST'])
-def browser_iface():
+
+def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
+                   ludica, festiva, cultural, centric):
+    pass
+
+
+@app.route("/formulari", methods=['GET', 'POST'])
+def gestio_formulari():
     """
         Permite la comunicacion con el agente via un navegador
         via un formulario
         """
-    return 'Nothing to see here'
+    if request.method == 'GET':
+        logger.info('Mostrem formulari per demanar paquet')
+        return render_template('formulari.html')
+
+    else:   # POST
+        ciutatIni = request.form.get('ciutatIni')
+        ciutatFi = request.form.get('ciutatFi')
+        dataIni = request.form.get('dataIni')
+        dataFi = request.form.get('dataFi')
+        pressupost = request.form.get('pressupost')
+        ludica = request.form.get('ludica')
+        festiva = request.form.get('festiva')
+        cultural = request.form.get('cultural')
+        centric = bool(request.form.get('centric', False))
+
+        try:
+            paquet = generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
+                                    ludica, festiva, cultural, centric)
+            return render_template('resultat.html')
+        except ExcepcioGeneracioViatge as e:
+            return render_template('formulari.html', error=e.motiu)
+
 
 @app.route("/stop")
 def stop():
@@ -194,6 +222,8 @@ def comunicacion():
 
                 else:
                     gr = build_message(Graph(), ACL['not-understood'], sender=GestorPaquets.uri, msgcnt=mss_cnt)
+
+
 def getAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
     logger.info("DEMANA ALLOTJAMENTS")
 
