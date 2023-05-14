@@ -17,12 +17,13 @@ directory-service-ontology.owl
 @author: javier
 """
 
-from multiprocessing import Process, Queue
 import argparse
 import logging
+import socket
+from multiprocessing import Process, Queue
 
 from flask import Flask, request, render_template
-from rdflib import Graph, RDF, Namespace, RDFS, Literal
+from rdflib import Graph, RDF, Namespace, RDFS
 from rdflib.namespace import FOAF
 
 from utils.FlaskServer import shutdown_server
