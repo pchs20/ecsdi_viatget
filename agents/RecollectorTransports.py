@@ -282,6 +282,11 @@ def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, esCentric):
             ?Transport pant:teCiutat ?ciutat .
             ?ciutat rdf:type pant:Ciutat .
             ?ciutat pant:nom ?nomCiutat .
+            ?Transport pant:preu ?preu .
+            ?Transport pant:dataInici ?dataIni .
+            ?Transport pant:dataFi ?dataFi .
+            FILTER(?nomCiutat = "%s" && ?preu <= %s && ?esCentric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
+        }
             FILTER(?nomCiutat = "%s")
         }
         LIMIT 30
