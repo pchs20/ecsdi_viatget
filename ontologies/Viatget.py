@@ -52,7 +52,7 @@ PANT =  ClosedNamespace(
         'pressupost',
         'preu',
         'tipus',
-        'allotjamentC%C3%A8ntric'
+        'allotjamentCentric'
 
         # Named Individuals
     ]

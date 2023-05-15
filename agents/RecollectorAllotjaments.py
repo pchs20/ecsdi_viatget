@@ -282,7 +282,11 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric
             ?Allotjament pant:teCiutat ?ciutat .
             ?ciutat rdf:type pant:Ciutat .
             ?ciutat pant:nom ?nomCiutat .
-            FILTER(?nomCiutat = "%s")
+            ?Allotjament pant:preu ?preu .
+            ?Allotjament pant:esCentric ?esCentric .
+            ?Allotjament pant:dataInici ?dataIni .
+            ?Allotjament pant:dataFi ?dataFi .
+            FILTER(?nomCiutat = "%s" && ?preu <= %s && ?esCentric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
         }
         LIMIT 30
     """ % (ciutat, ))
