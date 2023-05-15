@@ -150,29 +150,10 @@ def comunicacion():
     logger.info('Petició de cerca allotjaments rebuda')
 
     # Extraemos el mensaje y creamos un grafo con el
-    """message = request.args['content']
+    message = request.args['content']
     gm = Graph()
-    gm.parse(data=message)"""
-
-    # ToDo: Deshardcodejar
-    gm = Graph()
-    gm.bind('PANT', PANT)
-    peticio = URIRef('https://peticioooo.org')
-    gm.add((peticio, RDF.type, PANT.ObtenirAllotjaments))
-
-    ciutat = URIRef('https://ciutatatatatat.org')
-    gm.add((ciutat, RDF.type, PANT.Ciutat))
-    gm.add((ciutat, PANT.nom, Literal('Barcelona')))
-    gm.add((peticio, PANT.teCiutat, URIRef(ciutat)))
-    gm.add((peticio, PANT.dataInici, Literal('20-02-20')))
-    gm.add((peticio, PANT.dataFi, Literal('20-02-20')))
-    gm.add((peticio, PANT.preuMaxim, Literal(500)))
-    gm.add((peticio, PANT.esCentric, Literal(True)))
-    gmsg = build_message(gm, perf=ACL.request, sender=RecollectorAllotjaments.uri,
-                        receiver=RecollectorAllotjaments.uri, content=peticio, msgcnt=1)
-
-    #msg = get_message_properties(gm)
-    msg = get_message_properties(gmsg)
+    gm.parse(data=message, format='xml')
+    msg = get_message_properties(gm)
 
     # Comprobamos que sea un mensaje FIPA ACL
     if msg is None:
@@ -288,8 +269,6 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric
         }
         LIMIT 30
     """ % (ciutat, preuMax, esCentric, data_ini, data_fi))
-
-    print(len(gbd.query(query)))
 
     return gbd
 

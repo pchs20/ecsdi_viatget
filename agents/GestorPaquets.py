@@ -125,7 +125,6 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # Aquí faríem la planificació activitats + transport
     llista_allotjaments = resposta_allotjaments.triples((None, RDF.type, PANT.Allotjament))
     allotjament_obj = next(llista_allotjaments)[0]
-    print(allotjament_obj)
     # transport1_obj = next(possibles_transport1)[0]
     # transport2_obj = next(possibles_transport2)[0]
 

@@ -293,8 +293,6 @@ def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, esCentric):
         LIMIT 30
     """ % (ciutat, ))
 
-    print(len(gbd.query(query)))
-
     return gbd
 
 
