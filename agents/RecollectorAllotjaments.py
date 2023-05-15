@@ -284,12 +284,10 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric
             ?ciutat pant:nom ?nomCiutat .
             ?Allotjament pant:preu ?preu .
             ?Allotjament pant:esCentric ?esCentric .
-            ?Allotjament pant:dataInici ?dataIni .
-            ?Allotjament pant:dataFi ?dataFi .
             FILTER(?nomCiutat = "%s" && ?preu <= %s && ?esCentric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
         }
         LIMIT 30
-    """ % (ciutat, ))
+    """ % (ciutat, preuMax, esCentric, data_ini, data_fi))
 
     print(len(gbd.query(query)))
 

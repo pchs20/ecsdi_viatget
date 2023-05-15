@@ -42,7 +42,7 @@ args = parser.parse_args()
 
 # Configuration stuff
 if args.port is None:
-    port = 9010
+    port = 9020
 else:
     port = args.port
 
@@ -114,7 +114,7 @@ def register_message():
 
     global mss_cnt
 
-    gr = registrar_agent(RecollectorTransports, DirectoryAgent, PANT.AgentTransport, mss_cnt)
+    gr = registrar_agent(RecollectorTransports, DirectoryAgent, agn.RecollectorTransports, mss_cnt)
 
     mss_cnt += 1
 
@@ -261,6 +261,7 @@ def refresh_transports():
     global ultimRefresh
     ultimRefresh = datetime.today()
 
+
 def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, esCentric):
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
@@ -295,6 +296,7 @@ def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, esCentric):
     print(len(gbd.query(query)))
 
     return gbd
+
 
 def tidyup():
     """

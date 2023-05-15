@@ -6,7 +6,12 @@
 <body>
     <h1>El resultat obtingut es el següent: </h1>
 
-    <p>Allotjament: {{allotjament}}</p>
+    <p>Dades allotjament</p>
+    <ul>
+        <li>Nom: {{ paquet.allotjament.nom }}</li>
+        <li>Preu: {{ paquet.allotjament.preu }}</li>
+        <li>Centric: {{ paquet.allotjament.centric }}</li>
+    </ul>
 
     <p>Vol d'anada: {{volAnada}}</p>
     <p>Vol de tornada: {{volTornada}}</p>

@@ -44,7 +44,7 @@ args = parser.parse_args()
 
 # Configuration stuff
 if args.port is None:
-    port = 9011
+    port = 9021
 else:
     port = args.port
 
@@ -97,12 +97,6 @@ dsgraph.bind('pant', PANT)
 
 # Cola de comunicacion entre procesos
 cola1 = Queue()
-
-# Amadeus
-amadeus = Client(
-    client_id=AMADEUS_KEY,
-    client_secret=AMADEUS_SECRET
-)
 
 
 def register_message():
@@ -181,7 +175,7 @@ def comunicacion():
 
                 if accio == PANT.ObtenirAllotjaments:
                     transports = obtenir_transports()
-                    gr = build_message(allotjaments,
+                    gr = build_message(transports,
                                        ACL['inform'],
                                        sender=ProveidorTransports.uri,
                                        msgcnt=mss_cnt,

@@ -163,7 +163,19 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     )
     gr = send_message(missatge, gestorPaquets.address)
 
-    print(gr.triples((None, RDF.type, PANT.Allotjament)))
+    missatge = gr.value(predicate=RDF.type, object=ACL.FipaAclMessage)
+    paquet = gr.value(subject=missatge, predicate=ACL.content)
+
+    # Dades allotjament
+    allotjament_obj = gr.value(subject=paquet, predicate=PANT.teAllotjament)
+    allotjament = {}
+    allotjament['nom'] = str(gr.value(subject=allotjament_obj, predicate=PANT.nom))
+    allotjament['preu'] = float(gr.value(subject=allotjament_obj, predicate=PANT.preu))
+    allotjament['centric'] = bool(gr.value(subject=allotjament_obj, predicate=PANT.centric))
+
+    paquet = {'allotjament': allotjament, }
+
+    return paquet
 
 
 @app.route("/formulari", methods=['GET', 'POST'])
@@ -190,7 +202,7 @@ def interaccio_usuari():
         try:
             paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
                                     ludica, festiva, cultural, centric)
-            return render_template('resultat.html')
+            return render_template('resultat.html', paquet=paquet)
         except ExcepcioGeneracioViatge as e:
             return render_template('formulari.html', error=e.motiu)
 
@@ -206,120 +218,7 @@ def stop():
     shutdown_server()
     return "Parando Servidor"
 
-@app.route("/comm")
-def comunicacion():
-    """
-    Entrypoint de comunicacion
-    """
-    global dsgraph
-    global mss_cnt
-    pass
 
-    logger.info("PETICIO COMENÇAR PAQUET REBUDA")
-
-    message = request.args['content']
-    gm = Graph()
-    gm.parse(data=message,format='xml')
-    msg = get_message_properties(gm)
-
-    if msg is None:
-        gr = build_message(Graph(), ACL['not-understood'], sender=GestorPaquets.uri, msgcnt=mss_cnt)
-    else:
-        perf = msg['perfotmative']
-
-        if perf != ACL.request:
-            gr = build_message(Graph(), ACL['not-understood'], sender=GestorPaquets.uri, msgcnt=mss_cnt)
-        else:
-            if 'content' in msg:
-                content = msg['content']
-                accio = gm.value(subject=content, predicate=RDF.type)
-
-                if accio == PANT.DemanarViatje:
-
-                    # Ciutats destí i inici
-                    ciutat_desti = gm.value(subject=content, predicate=PANT.teComAPuntFinal)
-                    ciutat_d = str(gm.value(subject=ciutat_desti, predicate=PANT.nom))
-
-                    ciutat_origen = gm.value(subject=content, predicate=PANT.teComAPuntInici)
-                    ciutat = str(gm.value(subject=ciutat_origen, predicate=PANT.nom))
-
-                    # Pressupost
-                    pressupost = float(gm.value(subject=content, predicate=PANT.pressupost))
-
-                    # Preferencia Allotjament
-                    allotjament_centric = bool(gm.value(subject=content, predicate=PANT.allotjamentCentric))
-
-                    # Dates viatje
-                    data_ini = str(gm.value(subject=content, predicate=PANT.dataInici))
-                    data_fi = str(gm.value(subject=content, predicate=PANT.dataFi))
-
-                    # Retornem info
-                    allotjaments = getAllotjaments(data_ini,data_fi,allotjament_centric,ciutat_desti,pressupost)
-
-                    #Operacio calcula millor opcio combinacio transport i allotjament
-
-
-
-                    #gr = build_message()
-
-
-
-                else:
-                    gr = build_message(Graph(), ACL['not-understood'], sender=GestorPaquets.uri, msgcnt=mss_cnt)
-
-
-def getAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
-    logger.info("DEMANA ALLOTJAMENTS")
-
-    agent_allotjament = Agent('', '', '', None)
-    aconseguir_agent(
-        emisor=AssistentVirtual,
-        agent=agent_allotjament,
-        directori=DirectoryAgent,
-        tipus=agn.RecollectorAllotjaments,
-        mss_cnt=mss_cnt
-    )
-    logger.info(agent_allotjament)
-
-    graf = Graph()
-    content = URIRef('https://peticio_allotjaments.org')
-    graf.add((content,RDF.type,PANT.ObtenirAllotjaments))
-    graf.add((content, PANT.esCentric, Literal(centric)))
-    graf.add((content, PANT.deCiutat, Literal(ciutat_desti)))
-    graf.add((content, PANT.data_fi, Literal(dataFi)))
-    graf.add((content, PANT.data_inici, Literal(dataIni)))
-    graf.add((content, PANT.preu_maxim, Literal(preuMax)))
-
-    missatge = build_message(graf,GestorPaquets.uri,agent_allotjament.uri,content,mss_cnt)
-    gr = send_message(missatge,agent_allotjament.address)
-
-
-    llista_allotjaments = gr.triples((None, RDF.type, PANT.Allotjament))
-
-    return llista_allotjaments
-"""
-def getTransport(puntInici, puntFinal, dataIni, dataFi, preuMax):
-    logger.info("DEMANA TRANSPORT")
-
-    agent_transport = Agent('', '', '', None)
-    aconseguir_agent(GestorPaquets, agent_transport, DirectoryAgent, agn.RecollectorTransport, mss_cnt)
-    logger.info(agent_transport)
-
-    graf = Graph()
-    content = URIRef("https://transports.org")
-    graf.add((content, RDF.type))
-
-    graf.add((content, RDF.type, PANT.ObtenirTransport))
-    graf.add((content, PANT.te_com_a_punt_final, Literal(puntFinal)))
-
-    agent_transport = get_info_agent(agn.RecollectorTransport, DirectoryAgent, GestorPaquets, get_count())
-
-    resposta = send_message(
-        build_message(graf, perf=ACL.request, content=content, receiver=agent_transport.uri, sender=GestorPaquets.uri,
-                      msgcnt=get_count()), agent_transport.address)
-
-    llista_transport = resposta.triples((None, RDF.type, PANT.Transport))
-"""
 def tidyup():
     """
     Acciones previas a parar el agente

@@ -118,7 +118,78 @@ def register_message():
 
 def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
                    ludica, festiva, cultural, centric):
+    resposta_allotjaments = getPossiblesAllotjaments(dataIni, dataFi, centric, ciutatFi, pressupost)
+    # possibles_transport1 = getPossiblesTransports(ciutatIni, ciutatFi, dataIni, pressupost)
+    # possibles_transport2 = getPossiblesTransports(ciutatFi, ciutatIni, dataFi, pressupost)
+
+    # Aquí faríem la planificació activitats + transport
+    llista_allotjaments = resposta_allotjaments.triples((None, RDF.type, PANT.Allotjament))
+    allotjament_obj = next(llista_allotjaments)[0]
+    print(allotjament_obj)
+    # transport1_obj = next(possibles_transport1)[0]
+    # transport2_obj = next(possibles_transport2)[0]
+
+    graf = Graph()
+    paquet = URIRef('https://paquetTancat.org')
+    graf.add((paquet, RDF.type, PANT.Paquet))
+
+    # Posem dades decidides de l'allotjament
+    graf.add((allotjament_obj, PANT.nom, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.nom)))
+    graf.add((allotjament_obj, PANT.preu, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.preu)))
+    graf.add((allotjament_obj, PANT.centric, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.esCentric)))
+    graf.add((paquet, PANT.teAllotjament, URIRef(allotjament_obj)))
+
+    # Posem dades decidides del vol d'anada
+    # graf.add((paquet, PANT.teTransportAnada, URIRef(transport1_obj)))
+
+    # Posem dades decidides del vol de tornada
+    # graf.add((paquet, PANT.teTransportTornada, URIRef(transport2_obj)))
+
+    return graf
+
+
+def getPossiblesAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
+    logger.info("DEMANA ALLOTJAMENTS")
+
+    agent_allotjament = Agent('', '', '', None)
+    aconseguir_agent(
+        emisor=GestorPaquets,
+        agent=agent_allotjament,
+        directori=DirectoryAgent,
+        tipus=agn.RecollectorAllotjaments,
+        mss_cnt=mss_cnt
+    )
+    logger.info(agent_allotjament)
+
+    graf = Graph()
+    graf.bind('PANT', PANT)
+    content = URIRef('https://peticio_allotjaments.org')
+    graf.add((content, RDF.type, PANT.ObtenirAllotjaments))
+    graf.add((content, PANT.centric, Literal(centric)))
+    ciutat_desti_obj = URIRef('https://ciutatDesti.org')
+    graf.add((ciutat_desti_obj, RDF.type, PANT.Ciutat))
+    graf.add((ciutat_desti_obj, PANT.nom, Literal(ciutat_desti)))
+    graf.add((content, PANT.teComAPuntInici, URIRef(ciutat_desti_obj)))
+    graf.add((content, PANT.teCiutat, Literal(ciutat_desti)))
+    graf.add((content, PANT.dataFi, Literal(dataFi)))
+    graf.add((content, PANT.dataInici, Literal(dataIni)))
+    graf.add((content, PANT.preuMaxim, Literal(preuMax)))
+
+    missatge = build_message(
+        graf,
+        perf=ACL.request,
+        sender=GestorPaquets.uri,
+        receiver=agent_allotjament.uri,
+        content=content,
+        msgcnt=mss_cnt
+    )
+    gr = send_message(missatge, agent_allotjament.address)
+    return gr
+
+
+def getPossiblesTransports(origen, desti, data, pressupost):
     pass
+
 
 
 @app.route("/stop")
@@ -175,68 +246,35 @@ def comunicacion():
                     # Preferencia Allotjament
                     allotjament_centric = bool(gm.value(subject=content, predicate=PANT.allotjamentCentric))
 
-                    # Dates viatje
+                    # Dates viatge
                     data_ini = str(gm.value(subject=content, predicate=PANT.dataInici))
                     data_fi = str(gm.value(subject=content, predicate=PANT.dataFi))
 
-                    # Retornem info
-                    allotjaments = getAllotjaments(data_ini,data_fi,allotjament_centric,ciutat_desti,pressupost)
+                    # Preferències activitats
+                    ludica = int(gm.value(subject=content, predicate=PANT.activitatsQuantLudiques))
+                    cultural = int(gm.value(subject=content, predicate=PANT.activitatsQuantCulturals))
+                    festiva = int(gm.value(subject=content, predicate=PANT.activitatsQuantFestives))
 
-                    #Operacio calcula millor opcio combinacio transport i allotjament
-
-
-
-                    #gr = build_message()
-
-
+                    # Generar el paquet
+                    content_paquet = generar_paquet(ciutat_origen, ciutat_desti, data_ini, data_fi, pressupost, ludica, festiva, cultural, allotjament_centric)
+                    gr = build_message(content_paquet,
+                                       ACL['inform'],
+                                       sender=GestorPaquets.uri,
+                                       content=URIRef('https://paquetTancat.org'),
+                                       msgcnt=mss_cnt,
+                                       receiver=msg['sender'])
 
                 else:
                     gr = build_message(Graph(), ACL['not-understood'], sender=GestorPaquets.uri, msgcnt=mss_cnt)
 
+    mss_cnt += 1
 
-def getAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
-    logger.info("DEMANA ALLOTJAMENTS")
+    logger.info('Petició de paquet resposta')
 
-    agent_allotjament = Agent('', '', '', None)
-    aconseguir_agent(
-        emisor=GestorPaquets,
-        agent=agent_allotjament,
-        directori=DirectoryAgent,
-        tipus=agn.RecollectorAllotjaments,
-        mss_cnt=mss_cnt
-    )
-    logger.info(agent_allotjament)
-
-    graf = Graph()
-    graf.bind('PANT', PANT)
-    content = URIRef('https://peticio_allotjaments.org')
-    graf.add((content, RDF.type, PANT.ObtenirAllotjaments))
-    graf.add((content, PANT.esCentric, Literal(centric)))
-    ciutat_desti_obj = URIRef('https://ciutatDesti.org')
-    graf.add((ciutat_desti_obj, RDF.type, PANT.Ciutat))
-    graf.add((ciutat_desti_obj, PANT.nom, Literal(ciutat_desti)))
-    graf.add((content, PANT.teComAPuntInici, URIRef(ciutat_desti_obj)))
-    graf.add((content, PANT.teCiutat, Literal(ciutat_desti)))
-    graf.add((content, PANT.dataFi, Literal(dataFi)))
-    graf.add((content, PANT.dataInici, Literal(dataIni)))
-    graf.add((content, PANT.preuMaxim, Literal(preuMax)))
-
-    missatge = build_message(
-        graf,
-        perf=ACL.request,
-        sender=GestorPaquets.uri,
-        receiver=agent_allotjament.uri,
-        content=content,
-        msgcnt=mss_cnt
-    )
-    gr = send_message(missatge, agent_allotjament.address)
+    return gr.serialize(format='xml')
 
 
-    llista_allotjaments = gr.triples((None, RDF.type, PANT.Allotjament))
 
-    print(llista_allotjaments)
-
-    return llista_allotjaments
 """
 def getTransport(puntInici, puntFinal, dataIni, dataFi, preuMax):
     logger.info("DEMANA TRANSPORT")
