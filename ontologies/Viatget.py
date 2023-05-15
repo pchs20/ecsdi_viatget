@@ -25,6 +25,7 @@ PANT =  ClosedNamespace(
         'PossiblesAllotjaments',
         'Resposta',
         'Transport',
+        'ObtenirTransports',
 
         # Object properties
         'informaDelPaquet',

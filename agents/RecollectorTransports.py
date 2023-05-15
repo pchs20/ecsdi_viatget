@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Agent recol·lector de possibilitats d'allotjament
+Agent recol·lector de possibilitats de transport
 """
 
 from multiprocessing import Process, Queue
@@ -77,8 +77,8 @@ agn = Namespace("http://www.agentes.org#")
 mss_cnt = 0
 
 # Datos del Agente
-RecollectorAllotjaments = Agent('RecollectorAllotjaments',
-                  agn.RecollectorAllotjaments,
+RecollectorTransports = Agent('RecollectorTransports',
+                  agn.RecollectorTransports,
                   'http://%s:%d/comm' % (hostaddr, port),
                   'http://%s:%d/Stop' % (hostaddr, port))
 
@@ -114,7 +114,7 @@ def register_message():
 
     global mss_cnt
 
-    gr = registrar_agent(RecollectorAllotjaments, DirectoryAgent, agn.RecollectorAllotjaments, mss_cnt)
+    gr = registrar_agent(RecollectorTransports, DirectoryAgent, PANT.AgentTransport, mss_cnt)
 
     mss_cnt += 1
 
@@ -147,7 +147,7 @@ def comunicacion():
     global dsgraph
     global mss_cnt
 
-    logger.info('Petició de cerca allotjaments rebuda')
+    logger.info('Petició de cerca transports rebuda')
 
     # Extraemos el mensaje y creamos un grafo con el
     """message = request.args['content']
@@ -158,7 +158,7 @@ def comunicacion():
     gm = Graph()
     gm.bind('PANT', PANT)
     peticio = URIRef('https://peticioooo.org')
-    gm.add((peticio, RDF.type, PANT.ObtenirAllotjaments))
+    gm.add((peticio, RDF.type, PANT.ObtenirTransports))
 
     ciutat = URIRef('https://ciutatatatatat.org')
     gm.add((ciutat, RDF.type, PANT.Ciutat))
@@ -168,8 +168,8 @@ def comunicacion():
     gm.add((peticio, PANT.dataFi, Literal('20-02-20')))
     gm.add((peticio, PANT.preuMaxim, Literal(500)))
     gm.add((peticio, PANT.esCentric, Literal(True)))
-    gmsg = build_message(gm, perf=ACL.request, sender=RecollectorAllotjaments.uri,
-                        receiver=RecollectorAllotjaments.uri, content=peticio, msgcnt=1)
+    gmsg = build_message(gm, perf=ACL.request, sender=RecollectorTransports.uri,
+                        receiver=RecollectorTransports.uri, content=peticio, msgcnt=1)
 
     #msg = get_message_properties(gm)
     msg = get_message_properties(gmsg)
@@ -177,14 +177,14 @@ def comunicacion():
     # Comprobamos que sea un mensaje FIPA ACL
     if msg is None:
         # Si no es, respondemos que no hemos entendido el mensaje
-        gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorAllotjaments.uri, msgcnt=mss_cnt)
+        gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorTransports.uri, msgcnt=mss_cnt)
     else:
         # Obtenemos la performativa
         perf = msg['performative']
 
         if perf != ACL.request:
             # Si no es un request, respondemos que no hemos entendido el mensaje
-            gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorAllotjaments.uri, msgcnt=mss_cnt)
+            gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorTransports.uri, msgcnt=mss_cnt)
         else:
             # Averiguamos el tipo de la accion
             if 'content' in msg:
@@ -193,7 +193,7 @@ def comunicacion():
 
                 # PROCÉS DE TRACTAMENT DE LA REQUEST
 
-                if accio == PANT.ObtenirAllotjaments:
+                if accio == PANT.ObtenirTransports:
                     # Agafem la relació amb la ciutat (és una relació) i el nom de la ciutat
                     ciutat_desti = gm.value(subject=content, predicate=PANT.teCiutat)
                     ciutat = str(gm.value(subject=ciutat_desti, predicate=PANT.nom))
@@ -207,86 +207,87 @@ def comunicacion():
                     esCentric = bool(gm.value(subject=content, predicate=PANT.esCentric))
 
                     # Obtenim les possibilitats i retornem la informació
-                    possibilitats = obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric)
+                    possibilitats = obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, esCentric)
                     gr = build_message(possibilitats,
                                        ACL['inform'],
-                                       sender=RecollectorAllotjaments.uri,
+                                       sender=RecollectorTransports.uri,
                                        msgcnt=mss_cnt,
                                        receiver=msg['sender'])
 
                 else:
-                    # Si no és una petició d'allotjaments
-                    gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorAllotjaments.uri,
+                    # Si no és una petició de transports
+                    gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorTransports.uri,
                                        msgcnt=mss_cnt)
     mss_cnt += 1
 
-    logger.info('Petició de cerca allotjaments resposta')
+    logger.info('Petició de cerca transports resposta')
 
     return gr.serialize(format='xml')
 
 
-def refresh_allotjaments():
-    logger.info('Fem refresh dels allotjaments que tenim guardats')
+def refresh_transports():
+    logger.info('Fem refresh dels transports que tenim guardats')
 
-    # Obtenim un actor extern d'allotjaments
-    logger.info('Busquem un actor extern allotjaments')
-    actorAllotjaments = Agent(None, None, None, None)
+    # Obtenim un actor extern de transports
+    logger.info('Busquem un actor extern transports')
+    actorTransports = Agent(None, None, None, None)
     aconseguir_agent(
-        emisor=RecollectorAllotjaments,
-        agent=actorAllotjaments,
+        emisor=RecollectorTransports,
+        agent=actorTransports,
         directori=DirectoryAgent,
-        tipus=agn.ActorAllotjaments,
+        tipus=agn.ActorTransports,
         mss_cnt=mss_cnt
     )
 
     # Construïm el graf de la petició
     g = Graph()
     peticio = URIRef('https://peticio.org')
-    g.add((peticio, RDF.type, PANT.ObtenirAllotjaments))
+    g.add((peticio, RDF.type, PANT.ObtenirTransports))
     missatge = build_message(
         g,
         perf=ACL.request,
-        sender=RecollectorAllotjaments.uri,
-        receiver=actorAllotjaments.uri,
+        sender=RecollectorTransports.uri,
+        receiver=actorTransports.uri,
         content=peticio,
         msgcnt=mss_cnt
     )
-    gr = send_message(missatge, actorAllotjaments.address)
+    gr = send_message(missatge, actorTransports.address)
 
     # Guardem les dades a la "BD"
-    logger.info('Actualitzem la BD allotjaments')
-    gr.serialize(destination='../bd/allotjaments.ttl', format='turtle')
+    logger.info('Actualitzem la BD transports')
+    gr.serialize(destination='../bd/transports.ttl', format='turtle')
 
     # Actualitzem la data de l'última actualització
     global ultimRefresh
     ultimRefresh = datetime.today()
 
-def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric):
+def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, esCentric):
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
     dif = today - ultimRefresh
     if dif > timedelta(days=1):
-        refresh_allotjaments()
+        refresh_transports()
 
     # Recuperem les dades
     gbd = Graph()
     gbd.bind('PANT', PANT)
-    gbd.parse(source='../bd/allotjaments.ttl', format='turtle')
+    gbd.parse(source='../bd/transports.ttl', format='turtle')
 
     # ToDo: Fer consulta en funció dels paràmetres rebuts a la funció i acabar retornant el resultat
     query = prepareQuery("""
         PREFIX pant:<https://ontologia.org#>
-        SELECT ?Allotjament
+        SELECT ?Transport
         WHERE {
-            ?Allotjament rdf:type pant:Allotjament .
-            ?Allotjament pant:teCiutat ?ciutat .
+            ?Transport rdf:type pant:Transport .
+            ?Transport pant:teCiutat ?ciutat .
             ?ciutat rdf:type pant:Ciutat .
             ?ciutat pant:nom ?nomCiutat .
-            ?Allotjament pant:preu ?preu .
-            ?Allotjament pant:esCentric ?esCentric .
-            ?Allotjament pant:dataInici ?dataIni .
-            ?Allotjament pant:dataFi ?dataFi .
+            ?Transport pant:preu ?preu .
+            ?Transport pant:dataInici ?dataIni .
+            ?Transport pant:dataFi ?dataFi .
             FILTER(?nomCiutat = "%s" && ?preu <= %s && ?esCentric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
+        }
+            FILTER(?nomCiutat = "%s")
         }
         LIMIT 30
     """ % (ciutat, ))
@@ -312,7 +313,7 @@ def agentbehavior1():
     """
 
     # Poblem la BD d'allotjaments
-    refresh_allotjaments()
+    refresh_transports()
 
     # Registramos el agente
     register_message()
