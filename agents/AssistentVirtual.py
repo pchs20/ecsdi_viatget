@@ -8,7 +8,7 @@ import logging
 import argparse
 import socket
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 
@@ -17,6 +17,7 @@ from utils.ACLMessages import build_message, send_message, get_message_propertie
 from utils.Agent import Agent
 from utils.Logging import config_logger
 from utils.Util import gethostname, registrar_agent, aconseguir_agent
+from utils.ExcepcioGeneracioViatge import ExcepcioGeneracioViatge
 
 from ontologies.ACL import ACL
 from ontologies.Viatget import PANT
@@ -40,7 +41,7 @@ args = parser.parse_args()
 
 # Configuration stuff
 if args.port is None:
-    port = 9002
+    port = 9001
 else:
     port = args.port
 
@@ -74,11 +75,9 @@ agn = Namespace("http://www.agentes.org#")
 # Contador de mensajes
 mss_cnt = 0
 
-agent_allotjament = Agent('','','',None)
-
 # Datos del Agente
-GestorPaquets = Agent('GestorPaquets',
-                  agn.GestorPaquets,
+AssistentVirtual = Agent('AssistentVirtual',
+                  agn.AssistentVirtual,
                   'http://%s:%d/comm' % (hostaddr, port),
                   'http://%s:%d/Stop' % (hostaddr, port))
 
@@ -109,16 +108,91 @@ def register_message():
     logger.info("Ens registrem")
     global mss_cnt
 
-    gr = registrar_agent(GestorPaquets, DirectoryAgent, agn.GestorPaquets, mss_cnt)
+    gr = registrar_agent(AssistentVirtual, DirectoryAgent, agn.AssistentVirtual, mss_cnt)
 
     mss_cnt +=1
 
     return gr
 
 
-def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
-                   ludica, festiva, cultural, centric):
-    pass
+def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
+                                    ludica, festiva, cultural, centric):
+    # Obtenir el gestor de paquets
+    gestorPaquets = Agent(None, None, None, None)
+    aconseguir_agent(
+        emisor=AssistentVirtual,
+        agent=gestorPaquets,
+        directori=DirectoryAgent,
+        tipus=agn.GestorPaquets,
+        mss_cnt=mss_cnt
+    )
+
+    # Creem el graf amb la petició
+    g = Graph()
+    peticio = URIRef('https://peticio.org')
+    g.bind('PANT', PANT)
+    g.add((peticio, RDF.type, PANT.DemanarViatge))
+
+    # Incorporem a la petició les dades rebudes per l'usuari
+    ciutatIniObj = URIRef('https://ciutatIni.org')
+    g.add((ciutatIniObj, RDF.type, PANT.Ciutat))
+    g.add((ciutatIniObj, PANT.nom, Literal(ciutatIni)))
+    g.add((peticio, PANT.teComAPuntInici, URIRef(ciutatIniObj)))
+
+    ciutatFiObj = URIRef('https://ciutatFi.org')
+    g.add((ciutatFiObj, RDF.type, PANT.Ciutat))
+    g.add((ciutatFiObj, PANT.nom, Literal(ciutatFi)))
+    g.add((peticio, PANT.teComAPuntFinal, URIRef(ciutatFiObj)))
+
+    g.add((peticio, PANT.dataInici, Literal(dataIni)))
+    g.add((peticio, PANT.dataFi, Literal(dataFi)))
+    g.add((peticio, PANT.pressupost, Literal(pressupost)))
+    g.add((peticio, PANT.activitatsQuantLudiques, Literal(ludica)))
+    g.add((peticio, PANT.activitatsQuantCulturals, Literal(cultural)))
+    g.add((peticio, PANT.activitatsQuantFestives, Literal(festiva)))
+    g.add((peticio, PANT.allotjamentCentric, Literal(centric)))
+
+    # Construïm, enviem i rebem resposta
+    missatge = build_message(
+        g,
+        perf=ACL.request,
+        sender=AssistentVirtual.uri,
+        receiver=gestorPaquets.uri,
+        content=peticio,
+        msgcnt=mss_cnt
+    )
+    gr = send_message(missatge, gestorPaquets.address)
+
+    print(gr.triples((None, RDF.type, PANT.Allotjament)))
+
+
+@app.route("/formulari", methods=['GET', 'POST'])
+def interaccio_usuari():
+    """
+        Permite la comunicacion con el agente via un navegador
+        via un formulario
+        """
+    if request.method == 'GET':
+        logger.info('Mostrem formulari per demanar paquet')
+        return render_template('formulari.html')
+
+    else:   # POST
+        ciutatIni = request.form.get('ciutatIni')
+        ciutatFi = request.form.get('ciutatFi')
+        dataIni = request.form.get('dataIni')
+        dataFi = request.form.get('dataFi')
+        pressupost = request.form.get('pressupost')
+        ludica = request.form.get('ludica')
+        festiva = request.form.get('festiva')
+        cultural = request.form.get('cultural')
+        centric = bool(request.form.get('centric', False))
+
+        try:
+            paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
+                                    ludica, festiva, cultural, centric)
+            return render_template('resultat.html')
+        except ExcepcioGeneracioViatge as e:
+            return render_template('formulari.html', error=e.motiu)
 
 
 @app.route("/stop")
@@ -151,7 +225,7 @@ def comunicacion():
     if msg is None:
         gr = build_message(Graph(), ACL['not-understood'], sender=GestorPaquets.uri, msgcnt=mss_cnt)
     else:
-        perf = msg['performative']
+        perf = msg['perfotmative']
 
         if perf != ACL.request:
             gr = build_message(Graph(), ACL['not-understood'], sender=GestorPaquets.uri, msgcnt=mss_cnt)
@@ -160,7 +234,7 @@ def comunicacion():
                 content = msg['content']
                 accio = gm.value(subject=content, predicate=RDF.type)
 
-                if accio == PANT.DemanarViatge:
+                if accio == PANT.DemanarViatje:
 
                     # Ciutats destí i inici
                     ciutat_desti = gm.value(subject=content, predicate=PANT.teComAPuntFinal)
@@ -199,7 +273,7 @@ def getAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
 
     agent_allotjament = Agent('', '', '', None)
     aconseguir_agent(
-        emisor=GestorPaquets,
+        emisor=AssistentVirtual,
         agent=agent_allotjament,
         directori=DirectoryAgent,
         tipus=agn.RecollectorAllotjaments,
@@ -208,33 +282,19 @@ def getAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
     logger.info(agent_allotjament)
 
     graf = Graph()
-    graf.bind('PANT', PANT)
     content = URIRef('https://peticio_allotjaments.org')
-    graf.add((content, RDF.type, PANT.ObtenirAllotjaments))
+    graf.add((content,RDF.type,PANT.ObtenirAllotjaments))
     graf.add((content, PANT.esCentric, Literal(centric)))
-    ciutat_desti_obj = URIRef('https://ciutatDesti.org')
-    graf.add((ciutat_desti_obj, RDF.type, PANT.Ciutat))
-    graf.add((ciutat_desti_obj, PANT.nom, Literal(ciutat_desti)))
-    graf.add((content, PANT.teComAPuntInici, URIRef(ciutat_desti_obj)))
-    graf.add((content, PANT.teCiutat, Literal(ciutat_desti)))
-    graf.add((content, PANT.dataFi, Literal(dataFi)))
-    graf.add((content, PANT.dataInici, Literal(dataIni)))
-    graf.add((content, PANT.preuMaxim, Literal(preuMax)))
+    graf.add((content, PANT.deCiutat, Literal(ciutat_desti)))
+    graf.add((content, PANT.data_fi, Literal(dataFi)))
+    graf.add((content, PANT.data_inici, Literal(dataIni)))
+    graf.add((content, PANT.preu_maxim, Literal(preuMax)))
 
-    missatge = build_message(
-        graf,
-        perf=ACL.request,
-        sender=GestorPaquets.uri,
-        receiver=agent_allotjament.uri,
-        content=content,
-        msgcnt=mss_cnt
-    )
-    gr = send_message(missatge, agent_allotjament.address)
+    missatge = build_message(graf,GestorPaquets.uri,agent_allotjament.uri,content,mss_cnt)
+    gr = send_message(missatge,agent_allotjament.address)
 
 
     llista_allotjaments = gr.triples((None, RDF.type, PANT.Allotjament))
-
-    print(llista_allotjaments)
 
     return llista_allotjaments
 """

@@ -3,9 +3,9 @@
 
  Translated by owl2rdflib
 
- Translated to RDFlib from ontology urn:webprotege:ontology:f284b032-799d-4c40-8f60-a429799ce267
+ Translated to RDFlib from ontology https://ontologia.org#
 
- :Date 07/05/2023 14:10:01
+ :Date 15/05/2023 18:22:56
 """
 from rdflib import URIRef
 from rdflib.namespace import ClosedNamespace
@@ -14,9 +14,6 @@ PANT =  ClosedNamespace(
     uri=URIRef('https://ontologia.org#'),
     terms=[
         # Classes
-        'Agent',
-        'AgentAllotjament',
-        'AgentTransport',
         'Ciutat',
         'DemanarViatge',
         'PaquetTancat',
@@ -41,6 +38,9 @@ PANT =  ClosedNamespace(
         'teTransport',
 
         # Data properties
+        'activitatsQuantCulturals',
+        'activitatsQuantFestives',
+        'activitatsQuantLudiques',
         'esCentric',
         'nom',
         'preuMaxim',
@@ -51,7 +51,7 @@ PANT =  ClosedNamespace(
         'pressupost',
         'preu',
         'tipus',
-        'allotjamentC%C3%A8ntric'
+        'allotjamentCentric'
 
         # Named Individuals
     ]

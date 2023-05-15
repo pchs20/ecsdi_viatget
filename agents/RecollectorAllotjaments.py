@@ -114,7 +114,7 @@ def register_message():
 
     global mss_cnt
 
-    gr = registrar_agent(RecollectorAllotjaments, DirectoryAgent, PANT.AgentAllotjament, mss_cnt)
+    gr = registrar_agent(RecollectorAllotjaments, DirectoryAgent, agn.RecollectorAllotjaments, mss_cnt)
 
     mss_cnt += 1
 
