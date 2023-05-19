@@ -168,8 +168,7 @@ def getPossiblesAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
     ciutat_desti_obj = URIRef('https://ciutatDesti.org')
     graf.add((ciutat_desti_obj, RDF.type, PANT.Ciutat))
     graf.add((ciutat_desti_obj, PANT.nom, Literal(ciutat_desti)))
-    graf.add((content, PANT.teComAPuntInici, URIRef(ciutat_desti_obj)))
-    graf.add((content, PANT.teCiutat, Literal(ciutat_desti)))
+    graf.add((content, PANT.teCiutat, ciutat_desti_obj))
     graf.add((content, PANT.dataFi, Literal(dataFi)))
     graf.add((content, PANT.dataInici, Literal(dataIni)))
     graf.add((content, PANT.preuMaxim, Literal(preuMax)))
@@ -237,7 +236,7 @@ def comunicacion():
                     ciutat_d = str(gm.value(subject=ciutat_desti, predicate=PANT.nom))
 
                     ciutat_origen = gm.value(subject=content, predicate=PANT.teComAPuntInici)
-                    ciutat = str(gm.value(subject=ciutat_origen, predicate=PANT.nom))
+                    ciutat_o = str(gm.value(subject=ciutat_origen, predicate=PANT.nom))
 
                     # Pressupost
                     pressupost = float(gm.value(subject=content, predicate=PANT.pressupost))
@@ -255,7 +254,7 @@ def comunicacion():
                     festiva = int(gm.value(subject=content, predicate=PANT.activitatsQuantFestives))
 
                     # Generar el paquet
-                    content_paquet = generar_paquet(ciutat_origen, ciutat_desti, data_ini, data_fi, pressupost, ludica, festiva, cultural, allotjament_centric)
+                    content_paquet = generar_paquet(ciutat_o, ciutat_d, data_ini, data_fi, pressupost, ludica, festiva, cultural, allotjament_centric)
                     gr = build_message(content_paquet,
                                        ACL['inform'],
                                        sender=GestorPaquets.uri,

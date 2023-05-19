@@ -5,7 +5,7 @@
 
  Translated to RDFlib from ontology https://ontologia.org#
 
- :Date 15/05/2023 18:22:56
+ :Date 18/05/2023 15:44:18
 """
 from rdflib import URIRef
 from rdflib.namespace import ClosedNamespace
@@ -25,10 +25,11 @@ PANT =  ClosedNamespace(
         'PossiblesAllotjaments',
         'Resposta',
         'Transport',
-        'ObtenirTransports',
 
         # Object properties
         'informaDelPaquet',
+        'teTransportAnada',
+        'teTransportTornada',
         'deCiutat',
         'deLaCompanyia',
         'ofereix',
@@ -36,7 +37,6 @@ PANT =  ClosedNamespace(
         'teCiutat',
         'teComAPuntFinal',
         'teComAPuntInici',
-        'teTransport',
 
         # Data properties
         'activitatsQuantCulturals',

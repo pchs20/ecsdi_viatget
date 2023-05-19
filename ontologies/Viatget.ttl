@@ -20,6 +20,22 @@
                                                   rdfs:label "informa del paquet"@es .
 
 
+###  http://webprotege.stanford.edu/teTransportAnada
+<http://webprotege.stanford.edu/teTransportAnada> rdf:type owl:ObjectProperty ;
+                                                  rdfs:subPropertyOf owl:topObjectProperty ;
+                                                  rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Paquet> ;
+                                                  rdfs:range <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                  rdfs:label "te transport anada" .
+
+
+###  http://webprotege.stanford.edu/teTransportTornada
+<http://webprotege.stanford.edu/teTransportTornada> rdf:type owl:ObjectProperty ;
+                                                    rdfs:subPropertyOf owl:topObjectProperty ;
+                                                    rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Paquet> ;
+                                                    rdfs:range <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                    rdfs:label "te transport tornada" .
+
+
 ###  http://webprotege.stanford.edu/ecsdi_viatget/deCiutat
 <http://webprotege.stanford.edu/ecsdi_viatget/deCiutat> rdf:type owl:ObjectProperty ;
                                                         rdfs:subPropertyOf owl:topObjectProperty ;
@@ -76,14 +92,6 @@
                                                                rdfs:label "te com a punt inici"@es .
 
 
-###  http://webprotege.stanford.edu/ecsdi_viatget/teTransport
-<http://webprotege.stanford.edu/ecsdi_viatget/teTransport> rdf:type owl:ObjectProperty ;
-                                                           rdfs:subPropertyOf owl:topObjectProperty ;
-                                                           rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Paquet> ;
-                                                           rdfs:range <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
-                                                           rdfs:label "te transport"@es .
-
-
 #################################################################
 #    Data properties
 #################################################################
@@ -124,7 +132,8 @@
 <http://webprotege.stanford.edu/nom> rdf:type owl:DatatypeProperty ;
                                      rdfs:subPropertyOf owl:topDataProperty ;
                                      rdfs:domain <http://webprotege.stanford.edu/Ciutat> ,
-                                                 <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ;
+                                                 <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ,
+                                                 <http://webprotege.stanford.edu/ecsdi_viatget/CompanyiaTransport> ;
                                      rdfs:range xsd:string ;
                                      rdfs:label "nom" .
 
