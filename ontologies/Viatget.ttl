@@ -71,7 +71,8 @@
 ###  http://webprotege.stanford.edu/ecsdi_viatget/teCiutat
 <http://webprotege.stanford.edu/ecsdi_viatget/teCiutat> rdf:type owl:ObjectProperty ;
                                                         rdfs:subPropertyOf owl:topObjectProperty ;
-                                                        rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ;
+                                                        rdfs:domain <http://webprotege.stanford.edu/Activitat> ,
+                                                                    <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ;
                                                         rdfs:range <http://webprotege.stanford.edu/Ciutat> ;
                                                         rdfs:label "te ciutat"@es .
 
@@ -99,7 +100,8 @@
 ###  http://webprotege.stanford.edu/activitatsQuantCulturals
 <http://webprotege.stanford.edu/activitatsQuantCulturals> rdf:type owl:DatatypeProperty ;
                                                           rdfs:subPropertyOf owl:topDataProperty ;
-                                                          rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ;
+                                                          rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ,
+                                                                      <http://webprotege.stanford.edu/ObtenirActivitats> ;
                                                           rdfs:range xsd:integer ;
                                                           rdfs:label "activitatsQuantCulturals" .
 
@@ -107,7 +109,8 @@
 ###  http://webprotege.stanford.edu/activitatsQuantFestives
 <http://webprotege.stanford.edu/activitatsQuantFestives> rdf:type owl:DatatypeProperty ;
                                                          rdfs:subPropertyOf owl:topDataProperty ;
-                                                         rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ;
+                                                         rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ,
+                                                                     <http://webprotege.stanford.edu/ObtenirActivitats> ;
                                                          rdfs:range xsd:integer ;
                                                          rdfs:label "activitatsQuantFestives" .
 
@@ -115,7 +118,8 @@
 ###  http://webprotege.stanford.edu/activitatsQuantLudiques
 <http://webprotege.stanford.edu/activitatsQuantLudiques> rdf:type owl:DatatypeProperty ;
                                                          rdfs:subPropertyOf owl:topDataProperty ;
-                                                         rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ;
+                                                         rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ,
+                                                                     <http://webprotege.stanford.edu/ObtenirActivitats> ;
                                                          rdfs:range xsd:integer ;
                                                          rdfs:label "activitatsQuantLudiques" .
 
@@ -128,10 +132,21 @@
                                            rdfs:label "esCentric" .
 
 
+###  http://webprotege.stanford.edu/franja
+<http://webprotege.stanford.edu/franja> rdf:type owl:DatatypeProperty ;
+                                        rdfs:subPropertyOf owl:topDataProperty ;
+                                        rdfs:domain <http://webprotege.stanford.edu/Activitat> ,
+                                                    <http://webprotege.stanford.edu/DemanarViatge> ,
+                                                    <http://webprotege.stanford.edu/ObtenirActivitats> ;
+                                        rdfs:range xsd:string ;
+                                        rdfs:label "franja" .
+
+
 ###  http://webprotege.stanford.edu/nom
 <http://webprotege.stanford.edu/nom> rdf:type owl:DatatypeProperty ;
                                      rdfs:subPropertyOf owl:topDataProperty ;
-                                     rdfs:domain <http://webprotege.stanford.edu/Ciutat> ,
+                                     rdfs:domain <http://webprotege.stanford.edu/Activitat> ,
+                                                 <http://webprotege.stanford.edu/Ciutat> ,
                                                  <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ,
                                                  <http://webprotege.stanford.edu/ecsdi_viatget/CompanyiaTransport> ;
                                      rdfs:range xsd:string ;
@@ -166,6 +181,7 @@
 <http://webprotege.stanford.edu/ecsdi_viatget/dataFi> rdf:type owl:DatatypeProperty ;
                                                       rdfs:subPropertyOf owl:topDataProperty ;
                                                       rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ,
+                                                                  <http://webprotege.stanford.edu/ObtenirActivitats> ,
                                                                   <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
                                                       rdfs:range xsd:dateTime ;
                                                       rdfs:label "data fi"@es .
@@ -175,6 +191,7 @@
 <http://webprotege.stanford.edu/ecsdi_viatget/dataInici> rdf:type owl:DatatypeProperty ;
                                                          rdfs:subPropertyOf owl:topDataProperty ;
                                                          rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ,
+                                                                     <http://webprotege.stanford.edu/ObtenirActivitats> ,
                                                                      <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
                                                          rdfs:range xsd:dateTime ;
                                                          rdfs:label "data inici"@es .
@@ -200,7 +217,8 @@
 ###  http://webprotege.stanford.edu/ecsdi_viatget/tipus
 <http://webprotege.stanford.edu/ecsdi_viatget/tipus> rdf:type owl:DatatypeProperty ;
                                                      rdfs:subPropertyOf owl:topDataProperty ;
-                                                     rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                     rdfs:domain <http://webprotege.stanford.edu/Activitat> ,
+                                                                 <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
                                                      rdfs:range xsd:string ;
                                                      rdfs:label "tipus"@es .
 
@@ -217,6 +235,12 @@
 #    Classes
 #################################################################
 
+###  http://webprotege.stanford.edu/Activitat
+<http://webprotege.stanford.edu/Activitat> rdf:type owl:Class ;
+                                           rdfs:subClassOf <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ;
+                                           rdfs:label "Activitat" .
+
+
 ###  http://webprotege.stanford.edu/Ciutat
 <http://webprotege.stanford.edu/Ciutat> rdf:type owl:Class ;
                                         rdfs:subClassOf owl:Thing ;
@@ -229,10 +253,34 @@
                                                rdfs:label "Demanar viatge"@es .
 
 
+###  http://webprotege.stanford.edu/ObtenirActivitats
+<http://webprotege.stanford.edu/ObtenirActivitats> rdf:type owl:Class ;
+                                                   rdfs:subClassOf <http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU> ;
+                                                   rdfs:label "Obtenir activitats" .
+
+
+###  http://webprotege.stanford.edu/ObtenirTransports
+<http://webprotege.stanford.edu/ObtenirTransports> rdf:type owl:Class ;
+                                                   rdfs:subClassOf <http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU> ;
+                                                   rdfs:label "Obtenir transports" .
+
+
 ###  http://webprotege.stanford.edu/PaquetTancat
 <http://webprotege.stanford.edu/PaquetTancat> rdf:type owl:Class ;
                                               rdfs:subClassOf <http://webprotege.stanford.edu/ecsdi_viatget/Resposta> ;
                                               rdfs:label "Paquet tancat"@es .
+
+
+###  http://webprotege.stanford.edu/PossiblesActivitats
+<http://webprotege.stanford.edu/PossiblesActivitats> rdf:type owl:Class ;
+                                                     rdfs:subClassOf <http://webprotege.stanford.edu/ecsdi_viatget/Resposta> ;
+                                                     rdfs:label "Possibles activitats" .
+
+
+###  http://webprotege.stanford.edu/PossiblesTransports
+<http://webprotege.stanford.edu/PossiblesTransports> rdf:type owl:Class ;
+                                                     rdfs:subClassOf <http://webprotege.stanford.edu/ecsdi_viatget/Resposta> ;
+                                                     rdfs:label "Possibles transports" .
 
 
 ###  http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU
