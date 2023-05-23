@@ -127,6 +127,7 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
         mss_cnt=mss_cnt
     )
 
+    logger.info(centric)
     # Creem el graf amb la petició
     g = Graph()
     peticio = URIRef('https://peticio.org')
@@ -171,6 +172,8 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     allotjament = {}
     allotjament['nom'] = str(gr.value(subject=allotjament_obj, predicate=PANT.nom))
     allotjament['preu'] = float(gr.value(subject=allotjament_obj, predicate=PANT.preu))
+    logger.info(gr.value(subject=allotjament_obj, predicate=PANT.preu))
+
     allotjament['centric'] = bool(gr.value(subject=allotjament_obj, predicate=PANT.centric))
 
     paquet = {'allotjament': allotjament, }

@@ -187,6 +187,13 @@ def comunicacion():
                     preuMax = float(gm.value(subject=content, predicate=PANT.preuMaxim))
                     esCentric = bool(gm.value(subject=content, predicate=PANT.esCentric))
 
+
+                    logger.info("primer centric")
+                    logger.info(esCentric)
+                    # el problema es que aixo en none, i al fer bool queda false
+                    logger.info(gm.value(subject=content, predicate=PANT.esCentric))
+
+
                     # Obtenim les possibilitats i retornem la informació
                     possibilitats = obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric)
                     gr = build_message(possibilitats,
@@ -243,12 +250,14 @@ def refresh_allotjaments():
     ultimRefresh = datetime.today()
 
 def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric):
+    logger.info(esCentric)
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
     dif = today - ultimRefresh
     if dif > timedelta(days=1):
         refresh_allotjaments()
 
+    logger.info(ciutat)
     # Recuperem les dades
     gbd = Graph()
     gbd.bind('PANT', PANT)
@@ -265,10 +274,45 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric
             ?ciutat pant:nom ?nomCiutat .
             ?Allotjament pant:preu ?preu .
             ?Allotjament pant:esCentric ?esCentric .
-            FILTER(?nomCiutat = "%s" && ?preu <= %s && ?esCentric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
+            FILTER(?nomCiutat = "%s" && ?preu <= %s  && ?esCentric = %s)
         }
-        LIMIT 30
-    """ % (ciutat, preuMax, esCentric, data_ini, data_fi))
+        ORDER BY ?preu
+        LIMIT 5
+    """ % (ciutat, preuMax, esCentric))
+
+    resultados = gbd.query(query)
+    num_resultados = len(resultados)
+    logger.info(num_resultados)
+    for resultado in resultados:
+        logger.info(resultado)
+        enlace = resultado[0]
+        if isinstance(enlace, URIRef):
+            # Obtener el enlace como cadena de texto
+            enlace_str = str(enlace)
+
+            # Obtener el nombre del recurso (Allotjament)
+            allotjament = enlace_str.split('/')[-1]
+
+            # Obtener otros datos del recurso utilizando SPARQL
+            query_datos = prepareQuery("""
+                    PREFIX pant:<https://ontologia.org#>
+                    SELECT ?nom ?preu ?ciutat
+                    WHERE {
+                        <%s> pant:nom ?nom ;
+                            pant:preu ?preu ;
+                            pant:teCiutat ?ciutat .
+                    }
+                """ % enlace_str)
+
+            resultados_datos = gbd.query(query_datos)
+
+            for resultado_datos in resultados_datos:
+                nom = str(resultado_datos['nom'])
+                preu = float(resultado_datos['preu'])
+
+                print(f"Allotjament: {allotjament}")
+                print(f"Nom: {nom}")
+                print(f"Preu: {preu}")
 
     return gbd
 

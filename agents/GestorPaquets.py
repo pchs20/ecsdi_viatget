@@ -118,6 +118,7 @@ def register_message():
 
 def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
                    ludica, festiva, cultural, centric):
+    logger.info(centric)
     resposta_allotjaments = getPossiblesAllotjaments(dataIni, dataFi, centric, ciutatFi, pressupost)
     # possibles_transport1 = getPossiblesTransports(ciutatIni, ciutatFi, dataIni, pressupost)
     # possibles_transport2 = getPossiblesTransports(ciutatFi, ciutatIni, dataFi, pressupost)
@@ -135,6 +136,7 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # Posem dades decidides de l'allotjament
     graf.add((allotjament_obj, PANT.nom, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.nom)))
     graf.add((allotjament_obj, PANT.preu, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.preu)))
+    logger.info(resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.preu))
     graf.add((allotjament_obj, PANT.centric, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.esCentric)))
     graf.add((paquet, PANT.teAllotjament, URIRef(allotjament_obj)))
 
@@ -149,7 +151,7 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
 
 def getPossiblesAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
     logger.info("DEMANA ALLOTJAMENTS")
-
+    logger.info(centric)
     agent_allotjament = Agent('', '', '', None)
     aconseguir_agent(
         emisor=GestorPaquets,
@@ -159,7 +161,8 @@ def getPossiblesAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
         mss_cnt=mss_cnt
     )
     logger.info(agent_allotjament)
-
+    logger.info("segon centric")
+    logger.info(Literal(centric))
     graf = Graph()
     graf.bind('PANT', PANT)
     content = URIRef('https://peticio_allotjaments.org')
@@ -183,6 +186,10 @@ def getPossiblesAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
     )
     gr = send_message(missatge, agent_allotjament.address)
     return gr
+
+
+def getPossiblesTransports(origen, desti, data, pressupost):
+    pass
 
 
 def getPossiblesTransports(origen, desti, data, pressupost):
@@ -243,6 +250,7 @@ def comunicacion():
 
                     # Preferencia Allotjament
                     allotjament_centric = bool(gm.value(subject=content, predicate=PANT.allotjamentCentric))
+                    logger.info(allotjament_centric)
 
                     # Dates viatge
                     data_ini = str(gm.value(subject=content, predicate=PANT.dataInici))
