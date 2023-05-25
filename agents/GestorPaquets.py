@@ -2,7 +2,8 @@
 """
 Agent recol·lector de possibilitats d'allotjament
 """
-
+import math
+from datetime import datetime, timedelta
 from multiprocessing import Process, Queue
 import logging
 import argparse
@@ -74,8 +75,6 @@ agn = Namespace("http://www.agentes.org#")
 # Contador de mensajes
 mss_cnt = 0
 
-agent_allotjament = Agent('','','',None)
-
 # Datos del Agente
 GestorPaquets = Agent('GestorPaquets',
                   agn.GestorPaquets,
@@ -117,13 +116,15 @@ def register_message():
 
 
 def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
-                   ludica, festiva, cultural, centric):
-    logger.info(centric)
+                   ludica, festiva, cultural, centric, franges):
+
+    # PLANIFICACIÓ ALLOTJAMENT I TRANSPORTS
+
     resposta_allotjaments = getPossiblesAllotjaments(dataIni, dataFi, centric, ciutatFi, pressupost)
     # possibles_transport1 = getPossiblesTransports(ciutatIni, ciutatFi, dataIni, pressupost)
     # possibles_transport2 = getPossiblesTransports(ciutatFi, ciutatIni, dataFi, pressupost)
 
-    # Aquí faríem la planificació activitats + transport
+    # Aquí faríem la planificació allotjament + transport
     llista_allotjaments = resposta_allotjaments.triples((None, RDF.type, PANT.Allotjament))
     allotjament_obj = next(llista_allotjaments)[0]
     # transport1_obj = next(possibles_transport1)[0]
@@ -136,8 +137,7 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # Posem dades decidides de l'allotjament
     graf.add((allotjament_obj, PANT.nom, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.nom)))
     graf.add((allotjament_obj, PANT.preu, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.preu)))
-    logger.info(resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.preu))
-    graf.add((allotjament_obj, PANT.centric, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.esCentric)))
+    graf.add((allotjament_obj, PANT.centric, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.centric)))
     graf.add((paquet, PANT.teAllotjament, URIRef(allotjament_obj)))
 
     # Posem dades decidides del vol d'anada
@@ -146,7 +146,48 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # Posem dades decidides del vol de tornada
     # graf.add((paquet, PANT.teTransportTornada, URIRef(transport2_obj)))
 
+
+    # PLANIFICACIÓ ACTIVITATS
+    """resposta_activitats = getPossiblesActivitats(ciutatFi, dataIni, dataFi, franges)
+    llista_activitats = resposta_activitats.triples((None, RDF.type, PANT.Activitat))
+
+    dataIni_date = datetime.strptime(dataIni, "%d/%m/%Y")
+    dataFi_date = datetime.strptime(dataFi, "%d/%m/%Y")
+    numDies = (dataFi_date - dataIni_date).days - 1
+    estadistiquesFranja = calcularEstadistiquesFranja(ludica, festiva, cultural, numDies)
+
+    for franja in franges:
+        nextAct = llista_activitats
+        data_act = dataIni_date + timedelta(days=1)
+        estadistiques_act = estadistiquesFranja.copy()
+        while data_act < dataFi_date:
+            act = next(nextAct)[0]
+            franja_act = str(resposta_activitats.value(subject=act, predicate=PANT.franja))
+            if franja_act == franja:
+                tipus_act = str(resposta_activitats.value(subject=act, predicate=PANT.tipus))
+                if estadistiques_act[tipus_act] > 0:
+                    estadistiques_act[tipus_act] -= 1
+                    nom_act = str(resposta_activitats.value(subject=act, predicate=PANT.nom))
+                    graf.add((act, RDF.type, PANT.Activitat))
+                    graf.add((act, PANT.nom, Literal(nom_act)))
+                    graf.add((act, PANT.tipus, Literal(tipus_act)))
+                    graf.add((act, PANT.franja, Literal(franja_act)))
+                    graf.add((act, PANT.data, Literal(data_act)))
+                    print(act)
+                    data_act += timedelta(days=1)"""
+
     return graf
+
+
+# Calculem, aproximadament, quantes activitats de cada tipus per franja hi hauria d'haver
+def calcularEstadistiquesFranja(ludica, festiva, cultural, numDies):
+    total = ludica + festiva + cultural
+    estadistiques = {
+        'ludica': 0 if ludica == 0 else math.ceil((ludica/total)*numDies),
+        'festiva': 0 if festiva == 0 else math.ceil((festiva/total)*numDies),
+        'cultural': 0 if cultural == 0 else math.ceil((cultural/total)*numDies)
+    }
+    return estadistiques
 
 
 def getPossiblesAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
@@ -160,9 +201,6 @@ def getPossiblesAllotjaments(dataIni, dataFi, centric, ciutat_desti, preuMax):
         tipus=agn.RecollectorAllotjaments,
         mss_cnt=mss_cnt
     )
-    logger.info(agent_allotjament)
-    logger.info("segon centric")
-    logger.info(Literal(centric))
     graf = Graph()
     graf.bind('PANT', PANT)
     content = URIRef('https://peticio_allotjaments.org')
@@ -192,9 +230,41 @@ def getPossiblesTransports(origen, desti, data, pressupost):
     pass
 
 
-def getPossiblesTransports(origen, desti, data, pressupost):
-    pass
+def getPossiblesActivitats(ciutat, dataIni, dataFi, franges):
+    logger.info("DEMANA ACTIVITATS")
 
+    agent_activitats = Agent('', '', '', None)
+    aconseguir_agent(
+        emisor=GestorPaquets,
+        agent=agent_activitats,
+        directori=DirectoryAgent,
+        tipus=agn.RecollectorActivitats,
+        mss_cnt=mss_cnt
+    )
+
+    graf = Graph()
+    graf.bind('PANT', PANT)
+    content = URIRef('https://peticio_activitats.org')
+    graf.add((content, RDF.type, PANT.ObtenirActivitats))
+    ciutat_desti_obj = URIRef('https://ciutatDesti.org')
+    graf.add((ciutat_desti_obj, RDF.type, PANT.Ciutat))
+    graf.add((ciutat_desti_obj, PANT.nom, Literal(ciutat)))
+    graf.add((content, PANT.teCiutat, ciutat_desti_obj))
+    graf.add((content, PANT.dataInici, Literal(dataIni)))
+    graf.add((content, PANT.dataFi, Literal(dataFi)))
+    for franja in franges:
+        graf.add((content, PANT.franja, Literal(franja)))
+
+    missatge = build_message(
+        graf,
+        perf=ACL.request,
+        sender=GestorPaquets.uri,
+        receiver=agent_activitats.uri,
+        content=content,
+        msgcnt=mss_cnt
+    )
+    gr = send_message(missatge, agent_activitats.address)
+    return gr
 
 
 @app.route("/stop")
@@ -261,8 +331,13 @@ def comunicacion():
                     cultural = int(gm.value(subject=content, predicate=PANT.activitatsQuantCulturals))
                     festiva = int(gm.value(subject=content, predicate=PANT.activitatsQuantFestives))
 
+                    frangesObj = gm.triples((None, PANT.franja, None))
+                    franges = []
+                    for franja in frangesObj:
+                        franges.append(franja[2])
+
                     # Generar el paquet
-                    content_paquet = generar_paquet(ciutat_o, ciutat_d, data_ini, data_fi, pressupost, ludica, festiva, cultural, allotjament_centric)
+                    content_paquet = generar_paquet(ciutat_o, ciutat_d, data_ini, data_fi, pressupost, ludica, festiva, cultural, allotjament_centric, franges)
                     gr = build_message(content_paquet,
                                        ACL['inform'],
                                        sender=GestorPaquets.uri,
