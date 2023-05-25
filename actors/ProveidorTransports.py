@@ -225,24 +225,22 @@ def obtenir_transports():
                 'MELIA BERLIN']
     }
 
-    transports = {
-        ['avio',
-         'tren',
-         'creuer',
-         'cotxe',
-         'bus',
-         'taxi']
+    tipus = {
+        ['Avio',
+         'Tren',
+         'Bus',
+         'Taxi']
     }
 
     i = 0
     while i < 500:
         for ciutat in ciutats:
-            allotjament = URIRef('allotjament' + ciutat + str(i))
-            gr.add((allotjament, RDF.type, PANT.Allotjament))
-            gr.add((allotjament, PANT.nom, Literal(random.choice(nomsAllotjaments[ciutat]))))
-            gr.add((allotjament, PANT.centric, Literal(random.choice([True, False]))))
-            gr.add((allotjament, PANT.teCiutat, URIRef(ciutatsObj[ciutat])))
-            gr.add((allotjament, PANT.preu, Literal(random.uniform(40.0, 200.0))))
+            transport = URIRef('transport' + ciutat + str(i))
+            gr.add((transport, RDF.type, PANT.Allotjament))
+            gr.add((transport, PANT.nom, Literal(random.choice(nomsAllotjaments[ciutat]))))
+            gr.add((transport, PANT.centric, Literal(random.choice([True, False]))))
+            gr.add((transport, PANT.teCiutat, URIRef(ciutatsObj[ciutat])))
+            gr.add((transport, PANT.preu, Literal(random.uniform(40.0, 200.0))))
 
         i += 1
 

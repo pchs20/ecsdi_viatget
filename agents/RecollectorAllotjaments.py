@@ -188,11 +188,6 @@ def comunicacion():
                     centric = bool(gm.value(subject=content, predicate=PANT.centric))
 
 
-                    logger.info("primer centric")
-                    logger.info(esCentric)
-                    # el problema es que aixo en none, i al fer bool queda false
-                    logger.info(gm.value(subject=content, predicate=PANT.esCentric))
-
 
                     # Obtenim les possibilitats i retornem la informació
                     possibilitats = obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric)
@@ -250,15 +245,17 @@ def refresh_allotjaments():
     ultimRefresh = datetime.today()
 
 def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
+
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
     dif = today - ultimRefresh
     if dif > timedelta(days=1):
         refresh_allotjaments()
 
-    logger.info(ciutat)
+
     # Recuperem les dades
     gbd = Graph()
+    logger.info(gbd)
     gbd.bind('PANT', PANT)
     gbd.parse(source='../bd/allotjaments.ttl', format='turtle')
 
@@ -272,15 +269,28 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
             ?ciutat rdf:type pant:Ciutat .
             ?ciutat pant:nom ?nomCiutat .
             ?Allotjament pant:preu ?preu .
-            ?Allotjament pant:esCentric ?esCentric .
-            FILTER(?nomCiutat = "%s" && ?preu <= %s  && ?esCentric = %s)
+            ?Allotjament pant:centric ?centric .
+            FILTER(?nomCiutat = "%s" && ?preu <= %s  && ?centric = %s)
         }
         ORDER BY ?preu
         LIMIT 5
-    """ % (ciutat, preuMax, esCentric))
+    """ % (ciutat, preuMax, centric))
 
-    resultados = gbd.query(query)
+    resultados = gbd.query(query).result
     num_resultados = len(resultados)
+    gr = Graph()
+    gr.bind('PANT', PANT)
+
+    for a in resultados:
+        print(a)
+        aObj = URIRef(a[0])
+        gr.add((aObj, RDF.type, PANT.Allotjament))
+        gr.add((aObj, PANT.nom, gbd.value(subject=aObj, predicate=PANT.nom)))
+        gr.add((aObj, PANT.centric, gbd.value(subject=aObj, predicate=PANT.centric)))
+        gr.add((aObj, PANT.teCiutat, gbd.value(subject=aObj, predicate=PANT.teCiutat)))
+        gr.add((aObj, PANT.preu, gbd.value(subject=aObj, predicate=PANT.preu)))
+
+
     logger.info(num_resultados)
     for resultado in resultados:
         logger.info(resultado)
@@ -313,7 +323,7 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
                 print(f"Nom: {nom}")
                 print(f"Preu: {preu}")
 
-    return gbd
+    return gr
 
 def tidyup():
     """

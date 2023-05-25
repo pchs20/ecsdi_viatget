@@ -151,6 +151,7 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
     g.add((peticio, PANT.activitatsQuantLudiques, Literal(ludica)))
     g.add((peticio, PANT.activitatsQuantCulturals, Literal(cultural)))
     g.add((peticio, PANT.activitatsQuantFestives, Literal(festiva)))
+    g.add((peticio, PANT.allotjamentCentric, Literal(centric)))
 
     if mati:
         g.add((peticio, PANT.franja, Literal("mati")))
