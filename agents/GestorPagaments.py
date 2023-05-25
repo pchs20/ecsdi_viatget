@@ -12,7 +12,7 @@ from flask import Flask, request
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 
-from utils.FlaskServer import shutdown_server
+from ecsdi_viatget.utils.FlaskServer import shutdown_server
 from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
 from ecsdi_viatget.utils.Agent import Agent
 from ecsdi_viatget.utils.Logging import config_logger
@@ -40,7 +40,7 @@ args = parser.parse_args()
 
 # Configuration stuff
 if args.port is None:
-    port = 9002
+    port = 9003
 else:
     port = args.port
 
@@ -180,7 +180,34 @@ def comunicacion():
 
 
 def getFacturaPagament(numTargeta,tipusTargeta,preu):
-    logger.info('ppppppppppppppppp')
+
+    agent_Banc = Agent('', '', '', None)
+    aconseguir_agent(
+        emisor=GestorPagaments,
+        agent=agent_Banc,
+        directori=DirectoryAgent,
+        tipus=agn.Banc,
+        mss_cnt=mss_cnt
+    )
+    logger.info(agent_Banc)
+    graf = Graph()
+    graf.bind('PANT', PANT)
+    content = URIRef('https://peticio_pagar.org')
+    graf.add((content, RDF.type, PANT.Pagar))
+    graf.add((content, PANT.preu, Literal(preu)))
+    graf.add((content, PANT.numeroTargeta, Literal(numTargeta)))
+    graf.add((content, PANT.tipusTargeta, Literal(tipusTargeta)))
+
+    missatge = build_message(
+        graf,
+        perf=ACL.request,
+        sender=GestorPagaments.uri,
+        receiver=agent_Banc.uri,
+        content=content,
+        msgcnt=mss_cnt
+    )
+    gr = send_message(missatge, agent_Banc.address)
+    return gr
 
 
 def tidyup():

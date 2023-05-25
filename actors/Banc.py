@@ -11,6 +11,7 @@ import random
 from flask import Flask, request
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
+from datetime import date
 
 from ecsdi_viatget.utils.FlaskServer import shutdown_server
 from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
@@ -43,7 +44,7 @@ args = parser.parse_args()
 
 # Configuration stuff
 if args.port is None:
-    port = 9011
+    port = 9110
 else:
     port = args.port
 
@@ -174,72 +175,23 @@ def comunicacion():
 
                 # PROCÉS DE TRACTAMENT DE LA REQUEST
 
-                if accio == PANT.ObtenirAllotjaments:
-                    allotjaments = obtenir_allotjaments()
-                    gr = build_message(allotjaments,
+                if accio == PANT.Pagar:
+                    validacio = date.today()
+                    gr = build_message(validacio,
                                        ACL['inform'],
-                                       sender=ProveidorAllotjaments.uri,
+                                       sender=Banc.uri,
                                        msgcnt=mss_cnt,
                                        receiver=msg['sender'])
+
                 else:
                     # Si no és una petició d'allotjaments
-                    gr = build_message(Graph(), ACL['not-understood'], sender=ProveidorAllotjaments.uri,
+                    gr = build_message(Graph(), ACL['not-understood'], sender=Banc.uri,
                                        msgcnt=mss_cnt)
     mss_cnt += 1
 
-    logger.info('Petició per obtenir allotjaments resposta')
+    logger.info('Petició pagar resposta')
 
     return gr.serialize(format='xml')
-
-
-def obtenir_allotjaments():
-    # ToDo: Potser intentem deshardcodejar les ciutat...
-    ciutats = ["BCN", "BER"]
-
-    gr = Graph()
-    gr.bind('PANT', PANT)
-
-    # Per ara, ens inventem les dades
-    bcn = URIRef('https://ciutats.org/Barcelona')
-    gr.add((bcn, RDF.type, PANT.Ciutat))
-    gr.add((bcn, PANT.nom, Literal('Barcelona')))
-
-    ber = URIRef('https://ciutats.org/Berlin')
-    gr.add((ber, RDF.type, PANT.Ciutat))
-    gr.add((ber, PANT.nom, Literal('Berlin')))
-
-    ciutatsObj = {
-        "BCN": bcn,
-        "BER": ber
-    }
-
-    nomsAllotjaments = {
-        "BCN": ['NH BARCELONA EIXAMPLE',
-                'GRAN HOTEL HAVANA',
-                'IBIS BARCELONA MERIDIANA',
-                'EXPO HOTEL BARCELONA',
-                'HOTEL SIDROME VILADECANS'],
-        "BER": ['NHOW BERLIN',
-                'NH BERLIN KURFURSTENDAMM',
-                'NH BERLIN CITY OST',
-                'MERCURE HOTEL MOA BERLIN',
-                'MELIA BERLIN']
-    }
-
-    i = 0
-    while i < 500:
-        for ciutat in ciutats:
-            allotjament = URIRef('allotjament' + ciutat + str(i))
-            gr.add((allotjament, RDF.type, PANT.Allotjament))
-            gr.add((allotjament, PANT.nom, Literal(random.choice(nomsAllotjaments[ciutat]))))
-            gr.add((allotjament, PANT.esCentric, Literal(random.choice([True, False]))))
-            gr.add((allotjament, PANT.teCiutat, URIRef(ciutatsObj[ciutat])))
-            gr.add((allotjament, PANT.preu, Literal(random.uniform(40.0, 200.0))))
-
-        i += 1
-
-    return gr
-
 
 def tidyup():
     """
