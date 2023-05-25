@@ -13,14 +13,14 @@ from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 from rdflib.plugins.sparql import prepareQuery
 
-from utils.FlaskServer import shutdown_server
-from utils.ACLMessages import build_message, send_message, get_message_properties
-from utils.Agent import Agent
-from utils.Logging import config_logger
-from utils.Util import gethostname, registrar_agent, aconseguir_agent
+from ecsdi_viatget.utils.FlaskServer import shutdown_server
+from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
+from ecsdi_viatget.utils.Agent import Agent
+from ecsdi_viatget.utils.Logging import config_logger
+from ecsdi_viatget.utils.Util import gethostname, registrar_agent, aconseguir_agent
 
-from ontologies.ACL import ACL
-from ontologies.Viatget import PANT
+from ecsdi_viatget.ontologies.ACL import ACL
+from ecsdi_viatget.ontologies.Viatget import PANT
 from datetime import datetime, timedelta
 
 
@@ -208,7 +208,7 @@ def comunicacion():
 
 def refresh_allotjaments():
     logger.info('Fem refresh dels allotjaments que tenim guardats')
-
+    logger.info(port)
     # Obtenim un actor extern d'allotjaments
     logger.info('Busquem un actor extern allotjaments')
     actorAllotjaments = Agent(None, None, None, None)

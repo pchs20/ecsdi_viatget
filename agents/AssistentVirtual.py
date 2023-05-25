@@ -12,15 +12,15 @@ from flask import Flask, request, render_template
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 
-from utils.FlaskServer import shutdown_server
-from utils.ACLMessages import build_message, send_message, get_message_properties
-from utils.Agent import Agent
-from utils.Logging import config_logger
-from utils.Util import gethostname, registrar_agent, aconseguir_agent
-from utils.ExcepcioGeneracioViatge import ExcepcioGeneracioViatge
+from ecsdi_viatget.utils.FlaskServer import shutdown_server
+from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
+from ecsdi_viatget.utils.Agent import Agent
+from ecsdi_viatget.utils.Logging import config_logger
+from ecsdi_viatget.utils.Util import gethostname, registrar_agent, aconseguir_agent
+from ecsdi_viatget.utils.ExcepcioGeneracioViatge import ExcepcioGeneracioViatge
 
-from ontologies.ACL import ACL
-from ontologies.Viatget import PANT
+from ecsdi_viatget.ontologies.ACL import ACL
+from ecsdi_viatget.ontologies.Viatget import PANT
 
 
 # Paràmetres de la línia de comandes
@@ -104,7 +104,8 @@ def register_message():
     :param gmess:
     :return:
     """
-
+    logger.info(hostname)
+    logger.info(port)
     logger.info("Ens registrem")
     global mss_cnt
 
@@ -177,6 +178,41 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
 
     return paquet
 
+def fer_pagament(numTargeta,tipusTargeta,preu):
+
+    gestorPagaments = Agent(None, None, None, None)
+    aconseguir_agent(
+        emisor=AssistentVirtual,
+        agent=gestorPagaments,
+        directori=DirectoryAgent,
+        tipus=agn.GestorPagaments,
+        mss_cnt=mss_cnt
+    )
+    # Creem el graf amb la petició
+    g = Graph()
+    peticio = URIRef('https://peticio.org')
+    g.bind('PANT', PANT)
+    g.add((peticio, RDF.type, PANT.RealitzarPagament))
+
+    g.add((peticio, PANT.numeroTargeta, Literal(numTargeta)))
+    g.add((peticio, PANT.tipusTargeta, Literal(tipusTargeta)))
+    g.add((peticio, PANT.preu, Literal(preu)))
+
+    missatge = build_message(
+        g,
+        perf=ACL.request,
+        sender=AssistentVirtual.uri,
+        receiver=gestorPagaments.uri,
+        content=peticio,
+        msgcnt=mss_cnt
+    )
+    gr = send_message(missatge, gestorPagaments.address)
+
+    missatge = gr.value(predicate=RDF.type, object=ACL.FipaAclMessage)
+    factura = gr.value(subject=missatge, predicate=ACL.content)
+
+    return factura
+
 
 @app.route("/formulari", methods=['GET', 'POST'])
 def interaccio_usuari():
@@ -189,20 +225,33 @@ def interaccio_usuari():
         return render_template('formulari.html')
 
     else:   # POST
-        ciutatIni = request.form.get('ciutatIni')
-        ciutatFi = request.form.get('ciutatFi')
-        dataIni = request.form.get('dataIni')
-        dataFi = request.form.get('dataFi')
-        pressupost = request.form.get('pressupost')
-        ludica = request.form.get('ludica')
-        festiva = request.form.get('festiva')
-        cultural = request.form.get('cultural')
-        centric = bool(request.form.get('centric', False))
+        action = request.form.get('action')
+        if action == 'pagar':
+            # ToDO
+            numT = request.form.get('numTargeta')
+            tipusT = request.form.get('tipusTargeta')
+            preu = request.form.get('preu')
+        else:
+            ciutatIni = request.form.get('ciutatIni')
+            ciutatFi = request.form.get('ciutatFi')
+            dataIni = request.form.get('dataIni')
+            dataFi = request.form.get('dataFi')
+            pressupost = request.form.get('pressupost')
+            ludica = request.form.get('ludica')
+            festiva = request.form.get('festiva')
+            cultural = request.form.get('cultural')
+            centric = bool(request.form.get('centric', False))
 
         try:
-            paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
+            if action == 'pagar':
+                logger.info("eeeeeeeeeeeee")
+                factura = fer_pagament(numT,tipusT,preu)
+                return render_template('factura.html', factura=factura)
+            else:
+
+                paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
                                     ludica, festiva, cultural, centric)
-            return render_template('resultat.html', paquet=paquet)
+                return render_template('resultat.html', paquet=paquet)
         except ExcepcioGeneracioViatge as e:
             return render_template('formulari.html', error=e.motiu)
 
@@ -245,6 +294,7 @@ if __name__ == '__main__':
 
     # Ponemos en marcha el servidor
     app.run(host=hostname, port=port)
+
 
     # Esperamos a que acaben los behaviors
     ab1.join()

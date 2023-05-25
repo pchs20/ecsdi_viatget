@@ -1,19 +1,18 @@
-# -*- coding: utf-8 -*-
+
 """
-Actor extern proveïdor d'allotjaments
+Agent recol·lector de possibilitats d'allotjament
 """
 
 from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
-import random
 
 from flask import Flask, request
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 
-from ecsdi_viatget.utils.FlaskServer import shutdown_server
+from utils.FlaskServer import shutdown_server
 from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
 from ecsdi_viatget.utils.Agent import Agent
 from ecsdi_viatget.utils.Logging import config_logger
@@ -21,9 +20,6 @@ from ecsdi_viatget.utils.Util import gethostname, registrar_agent, aconseguir_ag
 
 from ecsdi_viatget.ontologies.ACL import ACL
 from ecsdi_viatget.ontologies.Viatget import PANT
-
-from amadeus import Client, ResponseError
-from ecsdi_viatget.utils.APIKeys import AMADEUS_KEY, AMADEUS_SECRET
 
 
 # Paràmetres de la línia de comandes
@@ -44,7 +40,7 @@ args = parser.parse_args()
 
 # Configuration stuff
 if args.port is None:
-    port = 9011
+    port = 9002
 else:
     port = args.port
 
@@ -67,7 +63,7 @@ else:
     dhostname = args.dhost
 
 # Flask stuff
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../templates')
 if not args.verbose:
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)
@@ -78,9 +74,10 @@ agn = Namespace("http://www.agentes.org#")
 # Contador de mensajes
 mss_cnt = 0
 
+
 # Datos del Agente
-ProveidorAllotjaments = Agent('ProveidorAllotjaments',
-                  agn.ProveidorAllotjaments,
+GestorPagaments = Agent('GestorPagaments',
+                  agn.GestorPagaments,
                   'http://%s:%d/comm' % (hostaddr, port),
                   'http://%s:%d/Stop' % (hostaddr, port))
 
@@ -98,13 +95,6 @@ dsgraph.bind('pant', PANT)
 # Cola de comunicacion entre procesos
 cola1 = Queue()
 
-# Amadeus
-amadeus = Client(
-    client_id=AMADEUS_KEY,
-    client_secret=AMADEUS_SECRET
-)
-
-
 def register_message():
     """
     Envia un mensaje de registro al servicio de registro
@@ -115,25 +105,14 @@ def register_message():
     :return:
     """
 
-    logger.info('Nos registramos')
-
+    logger.info("Ens registrem")
     global mss_cnt
 
-    gr = registrar_agent(ProveidorAllotjaments, DirectoryAgent, agn.ActorAllotjaments, mss_cnt)
+    gr = registrar_agent(GestorPagaments, DirectoryAgent, agn.GestorPagaments, mss_cnt)
 
-    mss_cnt += 1
+    mss_cnt +=1
 
     return gr
-
-
-@app.route("/iface", methods=['GET', 'POST'])
-def browser_iface():
-    """
-    Permite la comunicacion con el agente via un navegador
-    via un formulario
-    """
-    return 'Nothing to see here'
-
 
 @app.route("/stop")
 def stop():
@@ -146,104 +125,62 @@ def stop():
     shutdown_server()
     return "Parando Servidor"
 
-
 @app.route("/comm")
 def comunicacion():
+    """
+    Entrypoint de comunicacion
+    """
     global dsgraph
     global mss_cnt
+    pass
 
-    logger.info('Petició per obtenir tots els allotjaments rebuda')
+    logger.info("Peticio fer pagament rebuda")
 
-    # Extraemos el mensaje y creamos un grafo con el
     message = request.args['content']
     gm = Graph()
-    gm.parse(data=message, format="xml")
+    gm.parse(data=message,format='xml')
     msg = get_message_properties(gm)
 
-    # Comprobamos que sea un mensaje FIPA ACL
     if msg is None:
-        # Si no es, respondemos que no hemos entendido el mensaje
-        gr = build_message(Graph(), ACL['not-understood'], sender=ProveidorAllotjaments.uri, msgcnt=mss_cnt)
+        gr = build_message(Graph(), ACL['not-understood'], sender=GestorPagaments.uri, msgcnt=mss_cnt)
     else:
-        # Obtenemos la performativa
         perf = msg['performative']
 
         if perf != ACL.request:
-            # Si no es un request, respondemos que no hemos entendido el mensaje
-            gr = build_message(Graph(), ACL['not-understood'], sender=ProveidorAllotjaments.uri, msgcnt=mss_cnt)
+            gr = build_message(Graph(), ACL['not-understood'], sender=GestorPagaments.uri, msgcnt=mss_cnt)
         else:
-            # Averiguamos el tipo de la accion
             if 'content' in msg:
                 content = msg['content']
                 accio = gm.value(subject=content, predicate=RDF.type)
 
-                # PROCÉS DE TRACTAMENT DE LA REQUEST
+                if accio == PANT.RealitzarPagament:
 
-                if accio == PANT.ObtenirAllotjaments:
-                    allotjaments = obtenir_allotjaments()
-                    gr = build_message(allotjaments,
+                    num_targeta = float(gm.value(subject=content,predicate=PANT.numeroTargeta))
+                    tipus_targeta = str(gm.value(subject=content,predicate=PANT.tipusTargeta))
+                    preu = float(gm.value(subject=content,predicate=PANT.preu))
+
+
+                    factura = getFacturaPagament(num_targeta,tipus_targeta,preu)
+                    gr = build_message(factura,
                                        ACL['inform'],
-                                       sender=ProveidorAllotjaments.uri,
+                                       sender=GestorPagaments.uri,
                                        msgcnt=mss_cnt,
                                        receiver=msg['sender'])
+
                 else:
-                    # Si no és una petició d'allotjaments
-                    gr = build_message(Graph(), ACL['not-understood'], sender=ProveidorAllotjaments.uri,
-                                       msgcnt=mss_cnt)
+                    gr = build_message(Graph(), ACL['not-understood'], sender=GestorPagaments.uri, msgcnt=mss_cnt)
+
     mss_cnt += 1
 
-    logger.info('Petició per obtenir allotjaments resposta')
+    logger.info('Petició de pagament resposta')
 
     return gr.serialize(format='xml')
 
 
-def obtenir_allotjaments():
-    # ToDo: Potser intentem deshardcodejar les ciutat...
-    ciutats = ["BCN", "BER"]
 
-    gr = Graph()
-    gr.bind('PANT', PANT)
 
-    # Per ara, ens inventem les dades
-    bcn = URIRef('https://ciutats.org/Barcelona')
-    gr.add((bcn, RDF.type, PANT.Ciutat))
-    gr.add((bcn, PANT.nom, Literal('Barcelona')))
-
-    ber = URIRef('https://ciutats.org/Berlin')
-    gr.add((ber, RDF.type, PANT.Ciutat))
-    gr.add((ber, PANT.nom, Literal('Berlin')))
-
-    ciutatsObj = {
-        "BCN": bcn,
-        "BER": ber
-    }
-
-    nomsAllotjaments = {
-        "BCN": ['NH BARCELONA EIXAMPLE',
-                'GRAN HOTEL HAVANA',
-                'IBIS BARCELONA MERIDIANA',
-                'EXPO HOTEL BARCELONA',
-                'HOTEL SIDROME VILADECANS'],
-        "BER": ['NHOW BERLIN',
-                'NH BERLIN KURFURSTENDAMM',
-                'NH BERLIN CITY OST',
-                'MERCURE HOTEL MOA BERLIN',
-                'MELIA BERLIN']
-    }
-
-    i = 0
-    while i < 500:
-        for ciutat in ciutats:
-            allotjament = URIRef('allotjament' + ciutat + str(i))
-            gr.add((allotjament, RDF.type, PANT.Allotjament))
-            gr.add((allotjament, PANT.nom, Literal(random.choice(nomsAllotjaments[ciutat]))))
-            gr.add((allotjament, PANT.esCentric, Literal(random.choice([True, False]))))
-            gr.add((allotjament, PANT.teCiutat, URIRef(ciutatsObj[ciutat])))
-            gr.add((allotjament, PANT.preu, Literal(random.uniform(40.0, 200.0))))
-
-        i += 1
-
-    return gr
+def getFacturaPagament(numTargeta,tipusTargeta,preu):
+    logger.info('ppppppppppppppppp')
 
 
 def tidyup():
@@ -253,7 +190,6 @@ def tidyup():
     """
     global cola1
     cola1.put(0)
-
 
 def agentbehavior1():
     """
@@ -265,9 +201,8 @@ def agentbehavior1():
     gr = register_message()
 
 
+
 if __name__ == '__main__':
-
-
     # Ponemos en marcha los behaviors
     ab1 = Process(target=agentbehavior1)
     ab1.start()
@@ -278,3 +213,4 @@ if __name__ == '__main__':
     # Esperamos a que acaben los behaviors
     ab1.join()
     logger.info('The End')
+

@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 """
-Actor extern proveïdor d'allotjaments
+Actor extern Banc
 """
 
 from multiprocessing import Process, Queue
@@ -79,8 +78,8 @@ agn = Namespace("http://www.agentes.org#")
 mss_cnt = 0
 
 # Datos del Agente
-ProveidorAllotjaments = Agent('ProveidorAllotjaments',
-                  agn.ProveidorAllotjaments,
+Banc = Agent('Banc',
+                  agn.Banc,
                   'http://%s:%d/comm' % (hostaddr, port),
                   'http://%s:%d/Stop' % (hostaddr, port))
 
@@ -99,10 +98,6 @@ dsgraph.bind('pant', PANT)
 cola1 = Queue()
 
 # Amadeus
-amadeus = Client(
-    client_id=AMADEUS_KEY,
-    client_secret=AMADEUS_SECRET
-)
 
 
 def register_message():
@@ -119,7 +114,7 @@ def register_message():
 
     global mss_cnt
 
-    gr = registrar_agent(ProveidorAllotjaments, DirectoryAgent, agn.ActorAllotjaments, mss_cnt)
+    gr = registrar_agent(Banc, DirectoryAgent, agn.Banc, mss_cnt)
 
     mss_cnt += 1
 
@@ -152,7 +147,7 @@ def comunicacion():
     global dsgraph
     global mss_cnt
 
-    logger.info('Petició per obtenir tots els allotjaments rebuda')
+    logger.info('Petició per obtenir factura banc')
 
     # Extraemos el mensaje y creamos un grafo con el
     message = request.args['content']
@@ -163,14 +158,14 @@ def comunicacion():
     # Comprobamos que sea un mensaje FIPA ACL
     if msg is None:
         # Si no es, respondemos que no hemos entendido el mensaje
-        gr = build_message(Graph(), ACL['not-understood'], sender=ProveidorAllotjaments.uri, msgcnt=mss_cnt)
+        gr = build_message(Graph(), ACL['not-understood'], sender=Banc.uri, msgcnt=mss_cnt)
     else:
         # Obtenemos la performativa
         perf = msg['performative']
 
         if perf != ACL.request:
             # Si no es un request, respondemos que no hemos entendido el mensaje
-            gr = build_message(Graph(), ACL['not-understood'], sender=ProveidorAllotjaments.uri, msgcnt=mss_cnt)
+            gr = build_message(Graph(), ACL['not-understood'], sender=Banc.uri, msgcnt=mss_cnt)
         else:
             # Averiguamos el tipo de la accion
             if 'content' in msg:
