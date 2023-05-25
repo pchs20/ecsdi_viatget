@@ -13,10 +13,12 @@
 
 <form method="post" action="">
 
+    <h2>Dades generals del viatge</h2>
+
     <!-- ciutat ini  -->
     <div style="display: flex; justify-content: space-between; width: 200px;">
         <label>
-            Data d'inici:
+            Ciutat d'inici:
         </label>
         <select name="ciutatIni" required>
             <option value="Barcelona" >Barcelona</option>
@@ -29,7 +31,7 @@
     <!-- desti -->
     <div style="display: flex; justify-content: space-between; width: 200px;">
         <label>
-            Desti: 
+            Ciutat de destí:
         </label>
         <select name="ciutatFi" required>
             <option value="Berlin" >Berlin</option>
@@ -66,54 +68,91 @@
     </div>
     <br/>
 
-    <!-- res, algo, normal i molt-->
-    <div style="display: flex; justify-content: space-between; width: 200px;">
-        <label>
-            ludica
-        </label>
-        <select name="ludica" required>
-            <option value="0" >Res</option>
-            <option value="1" >Algo</option>
-            <option value="2" >Normal</option>
-            <option value="3" >Molt</option>
-        </select>
-    </div>
-    <br/>
-
-    <div style="display: flex; justify-content: space-between; width: 200px;">
-        <label>
-            festiva
-        </label>
-        <select name="festiva" required>
-            <option value="0" >Res</option>
-            <option value="1" >Algo</option>
-            <option value="2" >Normal</option>
-            <option value="3" >Molt</option>
-        </select>
-    </div>
-    <br/>
-
-    <div style="display: flex; justify-content: space-between; width: 200px;">
-        <label>
-            cultural
-        </label>
-        <select name="cultural" required>
-            <option value="0" >Res</option>
-            <option value="1" >Algo</option>
-            <option value="2" >Normal</option>
-            <option value="3" >Molt</option>
-        </select>
-    </div>
-    <br/>
+    <h2>Sobre l'allotjament</h2>
 
     <!-- centric -->
     <div style="display: flex; justify-content: space-between; width: 200px;">
         <label>
-            Centric: 
+            Vols que sigui cèntric?:
         </label>
         <input type="checkbox" name="centric" style="margin-top: 5px;">
     </div>
     <br/>
+
+    <h2>Sobre les activitats</h2>
+
+    <h3>Quin tipus d'activitats t'agradaria fer?</h3>
+
+    <!-- res, algo, normal i molt-->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Lúdica
+        </label>
+        <select name="ludica" required>
+            <option value="0" >Cap</option>
+            <option value="1" >Alguna</option>
+            <option value="2" >Força</option>
+            <option value="3" >Moltes!</option>
+        </select>
+    </div>
+    <br/>
+
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Festiva
+        </label>
+        <select name="festiva" required>
+            <option value="0" >Cap</option>
+            <option value="1" >Alguna</option>
+            <option value="2" >Força</option>
+            <option value="3" >Moltes!</option>
+        </select>
+    </div>
+    <br/>
+
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Cultural
+        </label>
+        <select name="cultural" required>
+            <option value="0" >Cap</option>
+            <option value="1" >Alguna</option>
+            <option value="2" >Força</option>
+            <option value="3" >Moltes!</option>
+        </select>
+    </div>
+    <br/>
+
+    <h3>En quines franges horàries vols fer activitats</h3>
+
+    <!-- mati -->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Matí:
+        </label>
+        <input type="checkbox" name="mati" style="margin-top: 5px;">
+    </div>
+    <br/>
+
+    <!-- tarda -->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Tarda:
+        </label>
+        <input type="checkbox" name="tarda" style="margin-top: 5px;">
+    </div>
+    <br/>
+
+    <!-- nit -->
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Nit:
+        </label>
+        <input type="checkbox" name="nit" style="margin-top: 5px;">
+    </div>
+    <br/>
+
+
 
     <p>
         <button type="submit">Planificar!</button>
