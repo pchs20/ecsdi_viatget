@@ -126,15 +126,6 @@ def register_message():
     return gr
 
 
-@app.route("/iface", methods=['GET', 'POST'])
-def browser_iface():
-    """
-    Permite la comunicacion con el agente via un navegador
-    via un formulario
-    """
-    return 'Nothing to see here'
-
-
 @app.route("/stop")
 def stop():
     """

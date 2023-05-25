@@ -115,8 +115,8 @@ def register_message():
     return gr
 
 
-def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
-                                    ludica, festiva, cultural, centric):
+def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centric,
+                                    ludica, festiva, cultural, mati, tarda, nit):
     # Obtenir el gestor de paquets
     gestorPaquets = Agent(None, None, None, None)
     aconseguir_agent(
@@ -150,7 +150,13 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     g.add((peticio, PANT.activitatsQuantLudiques, Literal(ludica)))
     g.add((peticio, PANT.activitatsQuantCulturals, Literal(cultural)))
     g.add((peticio, PANT.activitatsQuantFestives, Literal(festiva)))
-    g.add((peticio, PANT.allotjamentCentric, Literal(centric)))
+
+    if mati:
+        g.add((peticio, PANT.franja, Literal("mati")))
+    if tarda:
+        g.add((peticio, PANT.franja, Literal("tarda")))
+    if nit:
+        g.add((peticio, PANT.franja, Literal("nit")))
 
     # Construïm, enviem i rebem resposta
     missatge = build_message(
@@ -194,14 +200,17 @@ def interaccio_usuari():
         dataIni = request.form.get('dataIni')
         dataFi = request.form.get('dataFi')
         pressupost = request.form.get('pressupost')
+        centric = bool(request.form.get('centric', False))
         ludica = request.form.get('ludica')
         festiva = request.form.get('festiva')
         cultural = request.form.get('cultural')
-        centric = bool(request.form.get('centric', False))
+        mati = bool(request.form.get('mati', False))
+        tarda = bool(request.form.get('tarda', False))
+        nit = bool(request.form.get('nit', False))
 
         try:
-            paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
-                                    ludica, festiva, cultural, centric)
+            paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centric,
+                                    ludica, festiva, cultural, mati, tarda, nit)
             return render_template('resultat.html', paquet=paquet)
         except ExcepcioGeneracioViatge as e:
             return render_template('formulari.html', error=e.motiu)
