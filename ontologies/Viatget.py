@@ -5,7 +5,7 @@
 
  Translated to RDFlib from ontology urn:webprotege:ontology:f284b032-799d-4c40-8f60-a429799ce267
 
- :Date 20/05/2023 12:33:55
+ :Date 25/05/2023 14:27:01
 """
 from rdflib import URIRef
 from rdflib.namespace import ClosedNamespace
@@ -16,6 +16,7 @@ PANT =  ClosedNamespace(
         # Classes
         'Activitat',
         'Ciutat',
+        'ComprovantPagament',
         'DemanarViatge',
         'ObtenirActivitats',
         'ObtenirTransports',
@@ -23,6 +24,7 @@ PANT =  ClosedNamespace(
         'PossiblesActivitats',
         'PossiblesTransports',
         'R79kFHXLHEItDb8KIeVk0uU',
+        'RealitzarPagament',
         'Allotjament',
         'CompanyiaTransport',
         'ObtenirAllotjaments',
@@ -49,7 +51,9 @@ PANT =  ClosedNamespace(
         'activitatsQuantLudiques',
         'franja',
         'nom',
+        'numeroTargeta',
         'preuMaxim',
+        'tipusTargeta',
         'centric',
         'data',
         'dataFi',
