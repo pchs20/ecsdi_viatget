@@ -137,7 +137,7 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # Posem dades decidides de l'allotjament
     graf.add((allotjament_obj, PANT.nom, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.nom)))
     graf.add((allotjament_obj, PANT.preu, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.preu)))
-    graf.add((allotjament_obj, PANT.centric, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.esCentric)))
+    graf.add((allotjament_obj, PANT.centric, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.centric)))
     graf.add((paquet, PANT.teAllotjament, URIRef(allotjament_obj)))
 
     # Posem dades decidides del vol d'anada

@@ -228,7 +228,7 @@ def obtenir_allotjaments():
             allotjament = URIRef('allotjament' + ciutat + str(i))
             gr.add((allotjament, RDF.type, PANT.Allotjament))
             gr.add((allotjament, PANT.nom, Literal(random.choice(nomsAllotjaments[ciutat]))))
-            gr.add((allotjament, PANT.esCentric, Literal(random.choice([True, False]))))
+            gr.add((allotjament, PANT.centric, Literal(random.choice([True, False]))))
             gr.add((allotjament, PANT.teCiutat, URIRef(ciutatsObj[ciutat])))
             gr.add((allotjament, PANT.preu, Literal(random.uniform(40.0, 200.0))))
 

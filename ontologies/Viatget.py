@@ -47,7 +47,6 @@ PANT =  ClosedNamespace(
         'activitatsQuantCulturals',
         'activitatsQuantFestives',
         'activitatsQuantLudiques',
-        'esCentric',
         'franja',
         'nom',
         'preuMaxim',

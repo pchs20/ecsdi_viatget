@@ -185,10 +185,10 @@ def comunicacion():
 
                     # Afagem el preu màxim i si l'allotjament ha de ser o no cèntric
                     preuMax = float(gm.value(subject=content, predicate=PANT.preuMaxim))
-                    esCentric = bool(gm.value(subject=content, predicate=PANT.esCentric))
+                    centric = bool(gm.value(subject=content, predicate=PANT.centric))
 
                     # Obtenim les possibilitats i retornem la informació
-                    possibilitats = obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric)
+                    possibilitats = obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric)
                     gr = build_message(possibilitats,
                                        ACL['inform'],
                                        sender=RecollectorAllotjaments.uri,
@@ -242,7 +242,7 @@ def refresh_allotjaments():
     global ultimRefresh
     ultimRefresh = datetime.today()
 
-def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric):
+def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
     dif = today - ultimRefresh
@@ -264,11 +264,11 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, esCentric
             ?ciutat rdf:type pant:Ciutat .
             ?ciutat pant:nom ?nomCiutat .
             ?Allotjament pant:preu ?preu .
-            ?Allotjament pant:esCentric ?esCentric .
-            FILTER(?nomCiutat = "%s" && ?preu <= %s && ?esCentric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
+            ?Allotjament pant:centric ?centric .
+            FILTER(?nomCiutat = "%s" && ?preu <= %s && ?centric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
         }
         LIMIT 30
-    """ % (ciutat, preuMax, esCentric, data_ini, data_fi))
+    """ % (ciutat, preuMax, centric, data_ini, data_fi))
 
     return gbd
 
