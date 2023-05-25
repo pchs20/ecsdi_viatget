@@ -176,6 +176,10 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
                     print(act)
                     data_act += timedelta(days=1)"""
 
+
+    # CALCULAR EL PREU FINAL DEL PAQUET
+    graf.add((paquet, PANT.preu, Literal(100)))
+
     return graf
 
 

@@ -179,7 +179,11 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
     allotjament['preu'] = float(gr.value(subject=allotjament_obj, predicate=PANT.preu))
     allotjament['centric'] = bool(gr.value(subject=allotjament_obj, predicate=PANT.centric))
 
-    paquet = {'allotjament': allotjament, }
+    # Demanar preu final
+    preu = str(gr.value(subject=paquet, predicate=PANT.preu))
+    print(preu)
+
+    paquet = {'allotjament': allotjament, 'preu': preu}
 
     return paquet
 
