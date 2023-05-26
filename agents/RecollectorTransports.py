@@ -167,7 +167,7 @@ def comunicacion():
     gm.add((peticio, PANT.dataInici, Literal('20-02-20')))
     gm.add((peticio, PANT.dataFi, Literal('20-02-20')))
     gm.add((peticio, PANT.preuMaxim, Literal(500)))
-    gm.add((peticio, PANT.esCentric, Literal(True)))
+    gm.add((peticio, PANT.centric, Literal(True)))
     gmsg = build_message(gm, perf=ACL.request, sender=RecollectorTransports.uri,
                         receiver=RecollectorTransports.uri, content=peticio, msgcnt=1)
 
@@ -204,10 +204,10 @@ def comunicacion():
 
                     # Afagem el preu màxim i si l'allotjament ha de ser o no cèntric
                     preuMax = float(gm.value(subject=content, predicate=PANT.preuMaxim))
-                    esCentric = bool(gm.value(subject=content, predicate=PANT.esCentric))
+                    centric = bool(gm.value(subject=content, predicate=PANT.centric))
 
                     # Obtenim les possibilitats i retornem la informació
-                    possibilitats = obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, esCentric)
+                    possibilitats = obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, centric)
                     gr = build_message(possibilitats,
                                        ACL['inform'],
                                        sender=RecollectorTransports.uri,
@@ -262,7 +262,7 @@ def refresh_transports():
     ultimRefresh = datetime.today()
 
 
-def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, esCentric):
+def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, centric):
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
     dif = today - ultimRefresh
@@ -286,7 +286,7 @@ def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, esCentric):
             ?Transport pant:preu ?preu .
             ?Transport pant:dataInici ?dataIni .
             ?Transport pant:dataFi ?dataFi .
-            FILTER(?nomCiutat = "%s" && ?preu <= %s && ?esCentric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
+            FILTER(?nomCiutat = "%s" && ?preu <= %s && ?centric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
         }
             FILTER(?nomCiutat = "%s")
         }

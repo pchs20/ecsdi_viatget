@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Agent recol·lector de possibilitats d'allotjament
+Agent recol·lector de possibilitats d'activitats
 """
 
 from multiprocessing import Process, Queue
@@ -42,7 +42,7 @@ args = parser.parse_args()
 
 # Configuration stuff
 if args.port is None:
-    port = 9010
+    port = 9030
 else:
     port = args.port
 
@@ -77,8 +77,8 @@ agn = Namespace("http://www.agentes.org#")
 mss_cnt = 0
 
 # Datos del Agente
-RecollectorAllotjaments = Agent('RecollectorAllotjaments',
-                  agn.RecollectorAllotjaments,
+RecollectorActivitats = Agent('RecollectorActivitats',
+                  agn.RecollectorActivitats,
                   'http://%s:%d/comm' % (hostaddr, port),
                   'http://%s:%d/Stop' % (hostaddr, port))
 
@@ -96,7 +96,7 @@ dsgraph.bind('pant', PANT)
 # Cola de comunicacion entre procesos
 cola1 = Queue()
 
-# Data de l'últim refresh dels allotjaments
+# Data de l'últim refresh de les activitats
 ultimRefresh = datetime.today()
 
 
@@ -114,7 +114,7 @@ def register_message():
 
     global mss_cnt
 
-    gr = registrar_agent(RecollectorAllotjaments, DirectoryAgent, agn.RecollectorAllotjaments, mss_cnt)
+    gr = registrar_agent(RecollectorActivitats, DirectoryAgent, agn.RecollectorActivitats, mss_cnt)
 
     mss_cnt += 1
 
@@ -147,7 +147,7 @@ def comunicacion():
     global dsgraph
     global mss_cnt
 
-    logger.info('Petició de cerca allotjaments rebuda')
+    logger.info('Petició de cerca activitats rebuda')
 
     # Extraemos el mensaje y creamos un grafo con el
     message = request.args['content']
@@ -158,14 +158,14 @@ def comunicacion():
     # Comprobamos que sea un mensaje FIPA ACL
     if msg is None:
         # Si no es, respondemos que no hemos entendido el mensaje
-        gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorAllotjaments.uri, msgcnt=mss_cnt)
+        gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorActivitats.uri, msgcnt=mss_cnt)
     else:
         # Obtenemos la performativa
         perf = msg['performative']
 
         if perf != ACL.request:
             # Si no es un request, respondemos que no hemos entendido el mensaje
-            gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorAllotjaments.uri, msgcnt=mss_cnt)
+            gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorActivitats.uri, msgcnt=mss_cnt)
         else:
             # Averiguamos el tipo de la accion
             if 'content' in msg:
@@ -174,103 +174,119 @@ def comunicacion():
 
                 # PROCÉS DE TRACTAMENT DE LA REQUEST
 
-                if accio == PANT.ObtenirAllotjaments:
+                if accio == PANT.ObtenirActivitats:
                     # Agafem la relació amb la ciutat (és una relació) i el nom de la ciutat
                     ciutat_desti = gm.value(subject=content, predicate=PANT.teCiutat)
                     ciutat = str(gm.value(subject=ciutat_desti, predicate=PANT.nom))
 
                     # Agafem dates d'inici i final (son propietats directament)
                     data_ini = str(gm.value(subject=content, predicate=PANT.dataInici))
+                    dataIni = datetime.strptime(data_ini, "%d/%m/%Y")
                     data_fi = str(gm.value(subject=content, predicate=PANT.dataFi))
+                    dataFi = datetime.strptime(data_fi, "%d/%m/%Y")
 
-                    # Afagem el preu màxim i si l'allotjament ha de ser o no cèntric
-                    preuMax = float(gm.value(subject=content, predicate=PANT.preuMaxim))
-                    centric = bool(gm.value(subject=content, predicate=PANT.centric))
+                    # Afaggem les franges en què volem buscar activitats
+                    frangesObj = gm.triples((None, PANT.franja, None))
+                    franges = []
+                    for franja in frangesObj:
+                        franges.append(franja[2])
 
                     # Obtenim les possibilitats i retornem la informació
-                    possibilitats = obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric)
+                    possibilitats = obtenir_possibles_activitats(ciutat, franges, dataIni, dataFi)
                     gr = build_message(possibilitats,
                                        ACL['inform'],
-                                       sender=RecollectorAllotjaments.uri,
+                                       sender=RecollectorActivitats.uri,
                                        msgcnt=mss_cnt,
                                        receiver=msg['sender'])
 
                 else:
-                    # Si no és una petició d'allotjaments
-                    gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorAllotjaments.uri,
+                    # Si no és una petició d'activitats
+                    gr = build_message(Graph(), ACL['not-understood'], sender=RecollectorActivitats.uri,
                                        msgcnt=mss_cnt)
     mss_cnt += 1
 
-    logger.info('Petició de cerca allotjaments resposta')
+    logger.info('Petició de cerca activitats resposta')
 
     return gr.serialize(format='xml')
 
 
-def refresh_allotjaments():
-    logger.info('Fem refresh dels allotjaments que tenim guardats')
-    logger.info(port)
-    # Obtenim un actor extern d'allotjaments
-    logger.info('Busquem un actor extern allotjaments')
-    actorAllotjaments = Agent(None, None, None, None)
+def refresh_activitats():
+    logger.info('Fem refresh de les activitats que tenim guardades')
+
+    # Obtenim un actor extern d'activitats
+    logger.info('Busquem un actor extern activitats')
+    actorActivitats = Agent(None, None, None, None)
     aconseguir_agent(
-        emisor=RecollectorAllotjaments,
-        agent=actorAllotjaments,
+        emisor=RecollectorActivitats,
+        agent=actorActivitats,
         directori=DirectoryAgent,
-        tipus=agn.ActorAllotjaments,
+        tipus=agn.ActorActivitats,
         mss_cnt=mss_cnt
     )
 
     # Construïm el graf de la petició
     g = Graph()
     peticio = URIRef('https://peticio.org')
-    g.add((peticio, RDF.type, PANT.ObtenirAllotjaments))
+    g.add((peticio, RDF.type, PANT.ObtenirActivitats))
     missatge = build_message(
         g,
         perf=ACL.request,
-        sender=RecollectorAllotjaments.uri,
-        receiver=actorAllotjaments.uri,
+        sender=RecollectorActivitats.uri,
+        receiver=actorActivitats.uri,
         content=peticio,
         msgcnt=mss_cnt
     )
-    gr = send_message(missatge, actorAllotjaments.address)
+    gr = send_message(missatge, actorActivitats.address)
 
     # Guardem les dades a la "BD"
-    logger.info('Actualitzem la BD allotjaments')
-    gr.serialize(destination='../bd/allotjaments.ttl', format='turtle')
+    logger.info('Actualitzem la BD activitats')
+    gr.serialize(destination='../bd/activitats.ttl', format='turtle')
 
     # Actualitzem la data de l'última actualització
     global ultimRefresh
     ultimRefresh = datetime.today()
 
-def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
+def obtenir_possibles_activitats(ciutat, franges, dataIni, dataFi):
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
     dif = today - ultimRefresh
     if dif > timedelta(days=1):
-        refresh_allotjaments()
+        refresh_activitats()
 
     # Recuperem les dades
     gbd = Graph()
     gbd.bind('PANT', PANT)
-    gbd.parse(source='../bd/allotjaments.ttl', format='turtle')
+    gbd.parse(source='../bd/activitats.ttl', format='turtle')
 
-    # ToDo: Fer consulta en funció dels paràmetres rebuts a la funció i acabar retornant el resultat
-    query = prepareQuery("""
-        PREFIX pant:<https://ontologia.org#>
-        SELECT ?Allotjament
-        WHERE {
-            ?Allotjament rdf:type pant:Allotjament .
-            ?Allotjament pant:teCiutat ?ciutat .
-            ?ciutat rdf:type pant:Ciutat .
-            ?ciutat pant:nom ?nomCiutat .
-            ?Allotjament pant:preu ?preu .
-            ?Allotjament pant:centric ?centric .
-            FILTER(?nomCiutat = "%s" && ?preu <= %s && ?centric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
-        }
-        LIMIT 30
-    """ % (ciutat, preuMax, centric, data_ini, data_fi))
+    # Retornem activitats de la ciutat, disponibles a les franges que volem
+    franges_in = ", ".join(['"%s"' % f for f in franges])
 
-    return gbd
+    queryObj = prepareQuery("""
+            PREFIX pant:<https://ontologia.org#>
+            SELECT ?Activitat
+            WHERE {
+                ?Activitat rdf:type pant:Activitat .
+                ?Activitat pant:teCiutat ?ciutat .
+                ?ciutat rdf:type pant:Ciutat .
+                ?ciutat pant:nom "%s" .
+                ?Activitat pant:franja ?franja .
+                FILTER(?franja IN (%s))
+            }
+        """ % (ciutat, franges_in))
+
+    result = gbd.query(queryObj).result
+
+    gr = Graph()
+    gr.bind('PANT', PANT)
+
+    for activitat in result:
+        activitatObj = URIRef(activitat[0])
+        gr.add((activitatObj, RDF.type, PANT.Activitat))
+        gr.add((activitatObj, PANT.nom, gbd.value(subject=activitatObj, predicate=PANT.nom)))
+        gr.add((activitatObj, PANT.tipus, gbd.value(subject=activitatObj, predicate=PANT.tipus)))
+        gr.add((activitatObj, PANT.franja, gbd.value(subject=activitatObj, predicate=PANT.franja)))
+
+    return gr
 
 def tidyup():
     """
@@ -288,8 +304,8 @@ def agentbehavior1():
     :return:
     """
 
-    # Poblem la BD d'allotjaments
-    refresh_allotjaments()
+    # Poblem la BD d'activitats
+    refresh_activitats()
 
     # Registramos el agente
     register_message()

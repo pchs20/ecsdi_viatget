@@ -7,6 +7,9 @@ from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
+import json
+
+from datetime import datetime, timedelta
 
 from flask import Flask, request, render_template
 from rdflib import Graph, Namespace, Literal, URIRef
@@ -104,8 +107,7 @@ def register_message():
     :param gmess:
     :return:
     """
-    logger.info(hostname)
-    logger.info(port)
+
     logger.info("Ens registrem")
     global mss_cnt
 
@@ -116,8 +118,9 @@ def register_message():
     return gr
 
 
-def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
-                                    ludica, festiva, cultural, centric):
+def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centric,
+                                    ludica, festiva, cultural, mati, tarda, nit):
+    logger.info("entra demanar")
     # Obtenir el gestor de paquets
     gestorPaquets = Agent(None, None, None, None)
     aconseguir_agent(
@@ -151,7 +154,13 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     g.add((peticio, PANT.activitatsQuantLudiques, Literal(ludica)))
     g.add((peticio, PANT.activitatsQuantCulturals, Literal(cultural)))
     g.add((peticio, PANT.activitatsQuantFestives, Literal(festiva)))
-    g.add((peticio, PANT.allotjamentCentric, Literal(centric)))
+
+    if mati:
+        g.add((peticio, PANT.franja, Literal("mati")))
+    if tarda:
+        g.add((peticio, PANT.franja, Literal("tarda")))
+    if nit:
+        g.add((peticio, PANT.franja, Literal("nit")))
 
     # Construïm, enviem i rebem resposta
     missatge = build_message(
@@ -174,7 +183,52 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     allotjament['preu'] = float(gr.value(subject=allotjament_obj, predicate=PANT.preu))
     allotjament['centric'] = bool(gr.value(subject=allotjament_obj, predicate=PANT.centric))
 
-    paquet = {'allotjament': allotjament, }
+    # Dades activitats
+    activitats = {}
+
+    dataIni_date = datetime.strptime(dataIni, "%d/%m/%Y")
+    dataFi_date = datetime.strptime(dataFi, "%d/%m/%Y")
+    data_act = dataIni_date + timedelta(days=1)
+    dates = []
+    while data_act < dataFi_date:
+        data_act_format = data_act.strftime("%d/%m/%Y")
+        activitats[data_act_format] = {}
+        dates.append(data_act_format)
+        data_act += timedelta(days=1)
+
+    teActivitats = False
+    for s, p, o in gr.triples((None, RDF.type, PANT.Activitat)):
+        teActivitats = True
+        data = str(gr.value(subject=s, predicate=PANT.data))
+        franja = str(gr.value(subject=s, predicate=PANT.franja))
+        activitats[data][franja] = {}
+        activitats[data][franja]['nom'] = str(gr.value(subject=s, predicate=PANT.nom))
+        activitats[data][franja]['tipus'] = str(gr.value(subject=s, predicate=PANT.tipus))
+
+    def date_key(date_str):
+        return datetime.strptime(date_str, "%d/%m/%Y")
+
+    activitats_sorted = dict(sorted(activitats.items(), key=lambda item: date_key(item[0])))
+
+    # Demanar preu final
+    preu = str(gr.value(subject=paquet, predicate=PANT.preu))
+
+    paquet = {
+        # Dades del paquet
+        'allotjament': allotjament,
+        'activitats': activitats_sorted,
+
+        # Preu
+        'preu': preu,
+
+        # Més info x construir l'html
+        'numDies': (dataFi_date - dataIni_date).days - 1,
+        'mati': mati,
+        'tarda': tarda,
+        'nit': nit,
+        'teActivitats': teActivitats,
+        'dates': dates,
+    }
 
     return paquet
 
@@ -225,6 +279,7 @@ def interaccio_usuari():
         return render_template('formulari.html')
 
     else:   # POST
+        logger.info('post')
         action = request.form.get('action')
         if action == 'pagar':
             # ToDO
@@ -232,6 +287,7 @@ def interaccio_usuari():
             tipusT = request.form.get('tipusTargeta')
             preu = request.form.get('preu')
         else:
+            logger.info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             ciutatIni = request.form.get('ciutatIni')
             ciutatFi = request.form.get('ciutatFi')
             dataIni = request.form.get('dataIni')
@@ -241,19 +297,21 @@ def interaccio_usuari():
             festiva = request.form.get('festiva')
             cultural = request.form.get('cultural')
             centric = bool(request.form.get('centric', False))
+            mati = bool(request.form.get('mati', False))
+            tarda = bool(request.form.get('tarda', False))
+            nit = bool(request.form.get('nit', False))
 
-        try:
-            if action == 'pagar':
-                logger.info("eeeeeeeeeeeee")
-                factura = fer_pagament(numT,tipusT,preu)
-                return render_template('factura.html', factura=factura)
-            else:
-
-                paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
-                                    ludica, festiva, cultural, centric)
-                return render_template('resultat.html', paquet=paquet)
-        except ExcepcioGeneracioViatge as e:
-            return render_template('formulari.html', error=e.motiu)
+    try:
+        if action == 'pagar':
+            logger.info("eeeeeeeeeeeee")
+            factura = fer_pagament(numT,tipusT,preu)
+            return render_template('factura.html', factura=factura)
+        else:
+            paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centric,
+                                              ludica, festiva, cultural, mati, tarda, nit)
+            return render_template('resultat.html', paquet=paquet)
+    except ExcepcioGeneracioViatge as e:
+        return render_template('formulari.html', error=e.motiu)
 
 
 @app.route("/stop")
@@ -294,7 +352,6 @@ if __name__ == '__main__':
 
     # Ponemos en marcha el servidor
     app.run(host=hostname, port=port)
-
 
     # Esperamos a que acaben los behaviors
     ab1.join()
