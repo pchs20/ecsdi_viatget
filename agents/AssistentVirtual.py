@@ -7,6 +7,9 @@ from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
+import json
+
+from datetime import datetime, timedelta
 
 from flask import Flask, request, render_template
 from rdflib import Graph, Namespace, Literal, URIRef
@@ -183,7 +186,52 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
 
     allotjament['centric'] = bool(gr.value(subject=allotjament_obj, predicate=PANT.centric))
 
-    paquet = {'allotjament': allotjament, }
+    # Dades activitats
+    activitats = {}
+
+    dataIni_date = datetime.strptime(dataIni, "%d/%m/%Y")
+    dataFi_date = datetime.strptime(dataFi, "%d/%m/%Y")
+    data_act = dataIni_date + timedelta(days=1)
+    dates = []
+    while data_act < dataFi_date:
+        data_act_format = data_act.strftime("%d/%m/%Y")
+        activitats[data_act_format] = {}
+        dates.append(data_act_format)
+        data_act += timedelta(days=1)
+
+    teActivitats = False
+    for s, p, o in gr.triples((None, RDF.type, PANT.Activitat)):
+        teActivitats = True
+        data = str(gr.value(subject=s, predicate=PANT.data))
+        franja = str(gr.value(subject=s, predicate=PANT.franja))
+        activitats[data][franja] = {}
+        activitats[data][franja]['nom'] = str(gr.value(subject=s, predicate=PANT.nom))
+        activitats[data][franja]['tipus'] = str(gr.value(subject=s, predicate=PANT.tipus))
+
+    def date_key(date_str):
+        return datetime.strptime(date_str, "%d/%m/%Y")
+
+    activitats_sorted = dict(sorted(activitats.items(), key=lambda item: date_key(item[0])))
+
+    # Demanar preu final
+    preu = str(gr.value(subject=paquet, predicate=PANT.preu))
+
+    paquet = {
+        # Dades del paquet
+        'allotjament': allotjament,
+        'activitats': activitats_sorted,
+
+        # Preu
+        'preu': preu,
+
+        # Més info x construir l'html
+        'numDies': (dataFi_date - dataIni_date).days - 1,
+        'mati': mati,
+        'tarda': tarda,
+        'nit': nit,
+        'teActivitats': teActivitats,
+        'dates': dates,
+    }
 
     return paquet
 
