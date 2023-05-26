@@ -11,6 +11,7 @@ import socket
 from flask import Flask, request
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
+from datetime import date
 
 from ecsdi_viatget.utils.FlaskServer import shutdown_server
 from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
@@ -207,8 +208,24 @@ def getFacturaPagament(numTargeta,tipusTargeta,preu):
         msgcnt=mss_cnt
     )
     gr = send_message(missatge, agent_Banc.address)
+    logger.info('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
     return gr
 
+def crearComprovant(preu,numT,tipusT):
+    logger.info('aaaaaaaaaaa')
+
+    factura = getFacturaPagament(numT,tipusT,preu)
+
+    logger.info('grstorqqqqqqqqqqqqqqqqq')
+    graf = Graph()
+    graf.bind('PANT', PANT)
+    content = URIRef('https://comprovant.org')
+    graf.add((content, RDF.type, PANT.ComprovantPagament))
+    graf.add((content, PANT.preu, Literal(preu)))
+    graf.add((content, PANT.data, Literal(date.today())))
+
+
+    return graf
 
 def tidyup():
     """
