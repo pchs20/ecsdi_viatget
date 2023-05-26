@@ -128,9 +128,12 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # Aquí faríem la planificació allotjament + transport
     llista_allotjaments = resposta_allotjaments.triples((None, RDF.type, PANT.Allotjament))
     allotjament_obj = next(llista_allotjaments)[0]
-
-    transport1_obj = next(possibles_transport1)[0]
-    transport2_obj = next(possibles_transport2)[0]
+    llista_transports1 = possibles_transport1.triples((None, RDF.type, PANT.Transport))
+    transport1 = next(llista_transports1)[0]
+    logger.info(transport1)
+    llista_transports2 = possibles_transport2.triples((None, RDF.type, PANT.Transport))
+    transport2 = next(llista_transports2)[0]
+    logger.info(transport2)
 
     graf = Graph()
     paquet = URIRef('https://paquetTancat.org')
@@ -143,10 +146,11 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     graf.add((paquet, PANT.teAllotjament, URIRef(allotjament_obj)))
 
     # Posem dades decidides del vol d'anada
-    graf.add((paquet, PANT.teTransportAnada, URIRef(transport1_obj)))
+    graf.add((paquet, PANT.teTransportAnada, URIRef(transport1)))
+    logger.info(transport1)
 
     # Posem dades decidides del vol de tornada
-    graf.add((paquet, PANT.teTransportTornada, URIRef(transport2_obj)))
+    graf.add((paquet, PANT.teTransportTornada, URIRef(transport2)))
 
 
     # PLANIFICACIÓ ACTIVITATS

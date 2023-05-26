@@ -182,9 +182,25 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
     allotjament = {}
     allotjament['nom'] = str(gr.value(subject=allotjament_obj, predicate=PANT.nom))
     allotjament['preu'] = float(gr.value(subject=allotjament_obj, predicate=PANT.preu))
-    logger.info(gr.value(subject=allotjament_obj, predicate=PANT.preu))
 
     allotjament['centric'] = bool(gr.value(subject=allotjament_obj, predicate=PANT.centric))
+
+    #dades transport anada
+    transport_obj = gr.value(subject=paquet, predicate=PANT.teTransportAnada)
+    transport = {}
+    transport['tipus'] = str(gr.value(subject=transport_obj, predicate=PANT.tipus))
+    transport['deLaCompanyia'] = bool(gr.value(subject=transport_obj, predicate=PANT.deLaCompanyia))
+    #transport['preu'] = float(gr.value(subject=transport_obj, predicate=PANT.preu))
+    #logger.info(gr.value(subject=transport_obj, predicate=PANT.preu))
+
+    #dades transport tornada
+    transport1_obj = gr.value(subject=paquet, predicate=PANT.teTransportTornada)
+    transport1 = {}
+    transport1['tipus'] = str(gr.value(subject=transport1_obj, predicate=PANT.tipus))
+    transport1['deLaCompanyia'] = bool(gr.value(subject=transport1_obj, predicate=PANT.deLaCompanyia))
+    #transport1['preu'] = float(gr.value(subject=transport1_obj, predicate=PANT.preu))
+    logger.info(gr.value(subject=transport1_obj, predicate=PANT.tipus))
+
 
     # Dades activitats
     activitats = {}

@@ -268,7 +268,53 @@ def obtenir_possibles_transports(preuMax):
         LIMIT 5
     """ % (preuMax ))
 
-    return gbd
+    resultados = gbd.query(query).result
+    num_resultados = len(resultados)
+    logger.info(num_resultados)
+    gr = Graph()
+    gr.bind('PANT', PANT)
+
+    for a in resultados:
+        print(a)
+        aObj = URIRef(a[0])
+        gr.add((aObj, RDF.type, PANT.Transport))
+        gr.add((aObj, PANT.tipus, gbd.value(subject=aObj, predicate=PANT.tipus)))
+        gr.add((aObj, PANT.deLaCompanyia, gbd.value(subject=aObj, predicate=PANT.deLaCompanyia)))
+        gr.add((aObj, PANT.preu, gbd.value(subject=aObj, predicate=PANT.preu)))
+
+    for resultado in resultados:
+        logger.info(resultado)
+        enlace = resultado[0]
+        if isinstance(enlace, URIRef):
+            # Obtener el enlace como cadena de texto
+            enlace_str = str(enlace)
+
+            # Obtener el nombre del recurso (Allotjament)
+            transport = enlace_str.split('/')[-1]
+
+            # Obtener otros datos del recurso utilizando SPARQL
+            query_datos = prepareQuery("""
+                       PREFIX pant:<https://ontologia.org#>
+                       SELECT ?tipus ?companyia ?preu
+                       WHERE {
+                           <%s> pant:tipus ?tipus ;
+                               pant:preu ?preu ;
+                               pant:deLaCompanyia ?companyia .
+                       }
+                   """ % enlace_str)
+
+            resultados_datos = gbd.query(query_datos)
+
+            for resultado_datos in resultados_datos:
+                tipus = str(resultado_datos['tipus'])
+                preu = float(resultado_datos['preu'])
+
+                print(f"transport: {transport}")
+                print(f"tipus: {tipus}")
+                print(f"Preu: {preu}")
+
+
+    return gr
 
 
 def tidyup():

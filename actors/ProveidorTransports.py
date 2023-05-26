@@ -230,9 +230,10 @@ def obtenir_transports():
             tipus_seleccionat = random.choice(tipus)
             companyia_seleccionada = random.choice(nomsCompanyia[tipus_seleccionat])
 
+            gr.add((transport, RDF.type, PANT.Transport))
             gr.add((transport, PANT.tipus, Literal(tipus_seleccionat)))
             gr.add((transport, PANT.deLaCompanyia, Literal(companyia_seleccionada)))
-            gr.add((transport, PANT.preu, Literal(random.uniform(30.0, 200.0))))
+            gr.add((transport, PANT.preu, Literal(random.uniform(50.0, 200.0))))
 
         i += 1
 
