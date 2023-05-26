@@ -204,7 +204,10 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
         activitats[data][franja]['nom'] = str(gr.value(subject=s, predicate=PANT.nom))
         activitats[data][franja]['tipus'] = str(gr.value(subject=s, predicate=PANT.tipus))
 
-    activitats_sorted = dict(sorted(activitats.items()))
+    def date_key(date_str):
+        return datetime.strptime(date_str, "%d/%m/%Y")
+
+    activitats_sorted = dict(sorted(activitats.items(), key=lambda item: date_key(item[0])))
 
     # Demanar preu final
     preu = str(gr.value(subject=paquet, predicate=PANT.preu))
