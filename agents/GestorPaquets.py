@@ -148,33 +148,43 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
 
 
     # PLANIFICACIÓ ACTIVITATS
-    """resposta_activitats = getPossiblesActivitats(ciutatFi, dataIni, dataFi, franges)
-    llista_activitats = resposta_activitats.triples((None, RDF.type, PANT.Activitat))
+    resposta_activitats = getPossiblesActivitats(ciutatFi, dataIni, dataFi, franges)
+    llista_activitats = []
+    for s, p, o in resposta_activitats.triples((None, RDF.type, PANT.Activitat)):
+        llista_activitats.append(s)
 
     dataIni_date = datetime.strptime(dataIni, "%d/%m/%Y")
     dataFi_date = datetime.strptime(dataFi, "%d/%m/%Y")
     numDies = (dataFi_date - dataIni_date).days - 1
     estadistiquesFranja = calcularEstadistiquesFranja(ludica, festiva, cultural, numDies)
 
+    nAct = 0
     for franja in franges:
-        nextAct = llista_activitats
+        i = 0
         data_act = dataIni_date + timedelta(days=1)
         estadistiques_act = estadistiquesFranja.copy()
         while data_act < dataFi_date:
-            act = next(nextAct)[0]
+            if i == len(llista_activitats):
+                i = 0
+            act = llista_activitats[i]
             franja_act = str(resposta_activitats.value(subject=act, predicate=PANT.franja))
             if franja_act == franja:
                 tipus_act = str(resposta_activitats.value(subject=act, predicate=PANT.tipus))
                 if estadistiques_act[tipus_act] > 0:
                     estadistiques_act[tipus_act] -= 1
                     nom_act = str(resposta_activitats.value(subject=act, predicate=PANT.nom))
-                    graf.add((act, RDF.type, PANT.Activitat))
-                    graf.add((act, PANT.nom, Literal(nom_act)))
-                    graf.add((act, PANT.tipus, Literal(tipus_act)))
-                    graf.add((act, PANT.franja, Literal(franja_act)))
-                    graf.add((act, PANT.data, Literal(data_act)))
-                    print(act)
-                    data_act += timedelta(days=1)"""
+                    novaActivitat = URIRef('activitat' + str(nAct))
+                    graf.add((novaActivitat, RDF.type, PANT.Activitat))
+                    graf.add((novaActivitat, PANT.nom, Literal(nom_act)))
+                    graf.add((novaActivitat, PANT.tipus, Literal(tipus_act)))
+                    graf.add((novaActivitat, PANT.franja, Literal(franja_act)))
+                    graf.add((novaActivitat, PANT.data, Literal(data_act.strftime("%d/%m/%Y"))))
+                    data_act += timedelta(days=1)
+                    nAct += 1
+            i += 1
+
+    # CALCULAR EL PREU FINAL DEL PAQUET
+    graf.add((paquet, PANT.preu, Literal(100)))
 
     return graf
 
@@ -182,6 +192,11 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
 # Calculem, aproximadament, quantes activitats de cada tipus per franja hi hauria d'haver
 def calcularEstadistiquesFranja(ludica, festiva, cultural, numDies):
     total = ludica + festiva + cultural
+    if total == 0:
+        ludica = 1
+        festiva = 1
+        cultural = 1
+        total = 3
     estadistiques = {
         'ludica': 0 if ludica == 0 else math.ceil((ludica/total)*numDies),
         'festiva': 0 if festiva == 0 else math.ceil((festiva/total)*numDies),
@@ -334,7 +349,7 @@ def comunicacion():
                     frangesObj = gm.triples((None, PANT.franja, None))
                     franges = []
                     for franja in frangesObj:
-                        franges.append(franja[2])
+                        franges.append(str(franja[2]))
 
                     # Generar el paquet
                     content_paquet = generar_paquet(ciutat_o, ciutat_d, data_ini, data_fi, pressupost, ludica, festiva, cultural, allotjament_centric, franges)

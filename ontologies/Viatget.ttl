@@ -47,7 +47,8 @@
 ###  http://webprotege.stanford.edu/ecsdi_viatget/deLaCompanyia
 <http://webprotege.stanford.edu/ecsdi_viatget/deLaCompanyia> rdf:type owl:ObjectProperty ;
                                                              rdfs:subPropertyOf owl:topObjectProperty ;
-                                                             rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                             rdfs:domain <http://webprotege.stanford.edu/ObtenirTransports> ,
+                                                                         <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
                                                              rdfs:range <http://webprotege.stanford.edu/ecsdi_viatget/CompanyiaTransport> ;
                                                              rdfs:label "de la companyia"@es .
 
@@ -148,13 +149,15 @@
 ###  http://webprotege.stanford.edu/numeroTargeta
 <http://webprotege.stanford.edu/numeroTargeta> rdf:type owl:DatatypeProperty ;
                                                rdfs:subPropertyOf owl:topDataProperty ;
-                                               rdfs:domain <http://webprotege.stanford.edu/RealitzarPagament> .
+                                               rdfs:domain <http://webprotege.stanford.edu/Pagar> ,
+                                                           <http://webprotege.stanford.edu/RealitzarPagament> .
 
 
 ###  http://webprotege.stanford.edu/preuMaxim
 <http://webprotege.stanford.edu/preuMaxim> rdf:type owl:DatatypeProperty ;
                                            rdfs:subPropertyOf owl:topDataProperty ;
-                                           rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
+                                           rdfs:domain <http://webprotege.stanford.edu/ObtenirTransports> ,
+                                                       <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
                                            rdfs:range xsd:float ;
                                            rdfs:label "preu maxim" .
 
@@ -162,7 +165,8 @@
 ###  http://webprotege.stanford.edu/tipusTargeta
 <http://webprotege.stanford.edu/tipusTargeta> rdf:type owl:DatatypeProperty ;
                                               rdfs:subPropertyOf owl:topDataProperty ;
-                                              rdfs:domain <http://webprotege.stanford.edu/RealitzarPagament> ;
+                                              rdfs:domain <http://webprotege.stanford.edu/Pagar> ,
+                                                          <http://webprotege.stanford.edu/RealitzarPagament> ;
                                               rdfs:label "tipus targeta" .
 
 
@@ -214,7 +218,8 @@
 ###  http://webprotege.stanford.edu/ecsdi_viatget/preu
 <http://webprotege.stanford.edu/ecsdi_viatget/preu> rdf:type owl:DatatypeProperty ;
                                                     rdfs:subPropertyOf owl:topDataProperty ;
-                                                    rdfs:domain <http://webprotege.stanford.edu/RealitzarPagament> ,
+                                                    rdfs:domain <http://webprotege.stanford.edu/Pagar> ,
+                                                                <http://webprotege.stanford.edu/RealitzarPagament> ,
                                                                 <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ,
                                                                 <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
                                                     rdfs:range xsd:float ;
@@ -278,6 +283,12 @@
                                                    rdfs:label "Obtenir transports" .
 
 
+###  http://webprotege.stanford.edu/Pagar
+<http://webprotege.stanford.edu/Pagar> rdf:type owl:Class ;
+                                       rdfs:subClassOf <http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU> ;
+                                       rdfs:label "Pagar" .
+
+
 ###  http://webprotege.stanford.edu/PaquetTancat
 <http://webprotege.stanford.edu/PaquetTancat> rdf:type owl:Class ;
                                               rdfs:subClassOf <http://webprotege.stanford.edu/ecsdi_viatget/Resposta> ;
@@ -306,6 +317,12 @@
 <http://webprotege.stanford.edu/RealitzarPagament> rdf:type owl:Class ;
                                                    rdfs:subClassOf <http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU> ;
                                                    rdfs:label "Realitzar pagament" .
+
+
+###  http://webprotege.stanford.edu/ValidacioPagament
+<http://webprotege.stanford.edu/ValidacioPagament> rdf:type owl:Class ;
+                                                   rdfs:subClassOf <http://webprotege.stanford.edu/ecsdi_viatget/Resposta> ;
+                                                   rdfs:label "Validacio pagament" .
 
 
 ###  http://webprotege.stanford.edu/ecsdi_viatget/Allotjament

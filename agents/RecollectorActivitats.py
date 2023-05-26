@@ -276,13 +276,10 @@ def obtenir_possibles_activitats(ciutat, franges, dataIni, dataFi):
 
     result = gbd.query(queryObj).result
 
-    print(len(result))
-
     gr = Graph()
     gr.bind('PANT', PANT)
 
     for activitat in result:
-        print(activitat)
         activitatObj = URIRef(activitat[0])
         gr.add((activitatObj, RDF.type, PANT.Activitat))
         gr.add((activitatObj, PANT.nom, gbd.value(subject=activitatObj, predicate=PANT.nom)))

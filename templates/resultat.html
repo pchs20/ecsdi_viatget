@@ -6,16 +6,80 @@
 <body>
     <h1>El resultat obtingut es el següent: </h1>
 
-    <p>Dades allotjament</p>
+    <h2>Dades allotjament</h2>
     <ul>
         <li>Nom: {{ paquet.allotjament.nom }}</li>
         <li>Preu: {{ paquet.allotjament.preu }}</li>
         <li>Centric: {{ paquet.allotjament.centric }}</li>
     </ul>
 
+    <br><br>
+
+    <h2>Dades del transport</h2>
+
     <p>Vol d'anada: {{volAnada}}</p>
     <p>Vol de tornada: {{volTornada}}</p>
 
+    <br><br>
+
+    <h2>Proposta d'activitats</h2>
+    {% if paquet.teActivitats %}
+    <table>
+        <tr>
+            <th>Data</th>
+            {% if paquet.mati %} <th>Matí</th> {% endif %}
+            {% if paquet.tarda %} <th>Tarda</th> {% endif %}
+            {% if paquet.nit %} <th>Nit</th> {% endif %}
+        </tr>
+        {% for data, actsDia in paquet.activitats.items() %}
+            <tr>
+                <td>{{ data }}</td>
+                {% if paquet.mati %}
+                    {% if actsDia.mati.tipus == 'ludica' %}
+                        <td bgcolor="#f08080">{{ actsDia.mati.nom }}</td>
+                    {% elif actsDia.mati.tipus == 'festiva' %}
+                        <td bgcolor="#00ffff">{{ actsDia.mati.nom }}</td>
+                    {% else %}
+                        <td bgcolor="#ba55d3">{{ actsDia.mati.nom }}</td>
+                    {% endif %}
+                {% endif %}
+                {% if paquet.tarda %}
+                    {% if actsDia.tarda.tipus == 'ludica' %}
+                        <td bgcolor="#f08080">{{ actsDia.tarda.nom }}</td>
+                    {% elif actsDia.tarda.tipus == 'festiva' %}
+                        <td bgcolor="#00ffff">{{ actsDia.tarda.nom }}</td>
+                    {% else %}
+                        <td bgcolor="#ba55d3">{{ actsDia.tarda.nom }}</td>
+                    {% endif %}
+                {% endif %}
+                {% if paquet.nit %}
+                    {% if actsDia.nit.tipus == 'ludica' %}
+                        <td bgcolor="#f08080">{{ actsDia.nit.nom }}</td>
+                    {% elif actsDia.nit.tipus == 'festiva' %}
+                        <td bgcolor="#00ffff">{{ actsDia.nit.nom }}</td>
+                    {% else %}
+                        <td bgcolor="#ba55d3">{{ actsDia.nit.nom }}</td>
+                    {% endif %}
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <p>Llegenda</p>
+    <table>
+        <tr>
+            <th bgcolor="#f08080">Activitats lúdiques</th>
+        </tr>
+        <tr>
+            <th bgcolor="#00ffff">Activitats festives</th>
+        </tr>
+        <tr>
+            <th bgcolor="#ba55d3">Activitats culturals</th>
+        </tr>
+    </table>
+    {% else %}
+    <p>No has demanat cap activitat</p>
+    {% endif %}
     <div>
         <ul>
             {%  for act in activitats %}
@@ -25,6 +89,12 @@
             {% endfor %}
         </ul>
     </div>
+
+    <br><br>
+
+    <h2>PREU FINAL</h2>
+
+    <p>{{ paquet.preu }}</p>
 
 </body>
 </html>
