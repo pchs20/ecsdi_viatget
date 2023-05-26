@@ -245,8 +245,8 @@ def interaccio_usuari():
     else:   # POST
         ciutatIni = request.form.get('ciutatIni')
         ciutatFi = request.form.get('ciutatFi')
-        dataIni = request.form.get('dataIni')
-        dataFi = request.form.get('dataFi')
+        dataIni = datetime.strptime(str(request.form.get('dataIni')), "%Y-%m-%d").strftime("%d/%m/%Y")
+        dataFi = datetime.strptime(str(request.form.get('dataFi')), "%Y-%m-%d").strftime("%d/%m/%Y")
         pressupost = request.form.get('pressupost')
         centric = bool(request.form.get('centric', False))
         ludica = request.form.get('ludica')
