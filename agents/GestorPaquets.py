@@ -192,6 +192,11 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
 # Calculem, aproximadament, quantes activitats de cada tipus per franja hi hauria d'haver
 def calcularEstadistiquesFranja(ludica, festiva, cultural, numDies):
     total = ludica + festiva + cultural
+    if total == 0:
+        ludica = 1
+        festiva = 1
+        cultural = 1
+        total = 3
     estadistiques = {
         'ludica': 0 if ludica == 0 else math.ceil((ludica/total)*numDies),
         'festiva': 0 if festiva == 0 else math.ceil((festiva/total)*numDies),

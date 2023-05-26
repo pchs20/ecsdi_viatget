@@ -44,18 +44,18 @@
                     {% endif %}
                 {% endif %}
                 {% if paquet.tarda %}
-                    {% if actsDia.mati.tipus == 'ludica' %}
+                    {% if actsDia.tarda.tipus == 'ludica' %}
                         <td bgcolor="#f08080">{{ actsDia.tarda.nom }}</td>
-                    {% elif actsDia.mati.tipus == 'festiva' %}
+                    {% elif actsDia.tarda.tipus == 'festiva' %}
                         <td bgcolor="#00ffff">{{ actsDia.tarda.nom }}</td>
                     {% else %}
                         <td bgcolor="#ba55d3">{{ actsDia.tarda.nom }}</td>
                     {% endif %}
                 {% endif %}
                 {% if paquet.nit %}
-                    {% if actsDia.mati.tipus == 'ludica' %}
+                    {% if actsDia.nit.tipus == 'ludica' %}
                         <td bgcolor="#f08080">{{ actsDia.nit.nom }}</td>
-                    {% elif actsDia.mati.tipus == 'festiva' %}
+                    {% elif actsDia.nit.tipus == 'festiva' %}
                         <td bgcolor="#00ffff">{{ actsDia.nit.nom }}</td>
                     {% else %}
                         <td bgcolor="#ba55d3">{{ actsDia.nit.nom }}</td bgcolor="#ba55d3">
