@@ -150,29 +150,10 @@ def comunicacion():
     logger.info('Petició de cerca transports rebuda')
 
     # Extraemos el mensaje y creamos un grafo con el
-    """message = request.args['content']
+    message = request.args['content']
     gm = Graph()
-    gm.parse(data=message)"""
-
-    # ToDo: Deshardcodejar
-    gm = Graph()
-    gm.bind('PANT', PANT)
-    peticio = URIRef('https://peticioooo.org')
-    gm.add((peticio, RDF.type, PANT.ObtenirTransports))
-
-    ciutat = URIRef('https://ciutatatatatat.org')
-    gm.add((ciutat, RDF.type, PANT.Ciutat))
-    gm.add((ciutat, PANT.nom, Literal('Barcelona')))
-    gm.add((peticio, PANT.teCiutat, URIRef(ciutat)))
-    gm.add((peticio, PANT.dataInici, Literal('20-02-20')))
-    gm.add((peticio, PANT.dataFi, Literal('20-02-20')))
-    gm.add((peticio, PANT.preuMaxim, Literal(500)))
-    gm.add((peticio, PANT.centric, Literal(True)))
-    gmsg = build_message(gm, perf=ACL.request, sender=RecollectorTransports.uri,
-                        receiver=RecollectorTransports.uri, content=peticio, msgcnt=1)
-
-    #msg = get_message_properties(gm)
-    msg = get_message_properties(gmsg)
+    gm.parse(data=message, format='xml')
+    msg = get_message_properties(gm)
 
     # Comprobamos que sea un mensaje FIPA ACL
     if msg is None:
@@ -194,20 +175,20 @@ def comunicacion():
                 # PROCÉS DE TRACTAMENT DE LA REQUEST
 
                 if accio == PANT.ObtenirTransports:
-                    # Agafem la relació amb la ciutat (és una relació) i el nom de la ciutat
-                    ciutat_desti = gm.value(subject=content, predicate=PANT.teCiutat)
-                    ciutat = str(gm.value(subject=ciutat_desti, predicate=PANT.nom))
+                    # Agafem la relació amb la companyia (és una relació) i el nom de la companyia
+                    #companyia_transport = gm.value(subject=content, predicate=PANT.deLaCompanyia)
+                    #companyia = str(gm.value(subject=companyia_transport, predicate=PANT.nom))
 
                     # Agafem dates d'inici i final (son propietats directament)
-                    data_ini = str(gm.value(subject=content, predicate=PANT.dataInici))
-                    data_fi = str(gm.value(subject=content, predicate=PANT.dataFi))
+                    #data_ini = str(gm.value(subject=content, predicate=PANT.dataInici))
+                    #data_fi = str(gm.value(subject=content, predicate=PANT.dataFi))
 
                     # Afagem el preu màxim i si l'allotjament ha de ser o no cèntric
                     preuMax = float(gm.value(subject=content, predicate=PANT.preuMaxim))
-                    centric = bool(gm.value(subject=content, predicate=PANT.centric))
+                    #centric = bool(gm.value(subject=content, predicate=PANT.centric))
 
                     # Obtenim les possibilitats i retornem la informació
-                    possibilitats = obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, centric)
+                    possibilitats = obtenir_possibles_transports(preuMax)
                     gr = build_message(possibilitats,
                                        ACL['inform'],
                                        sender=RecollectorTransports.uri,
@@ -262,7 +243,7 @@ def refresh_transports():
     ultimRefresh = datetime.today()
 
 
-def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, centric):
+def obtenir_possibles_transports(preuMax):
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
     dif = today - ultimRefresh
@@ -280,18 +261,12 @@ def obtenir_possibles_transports(ciutat, data_ini, data_fi, preuMax, centric):
         SELECT ?Transport
         WHERE {
             ?Transport rdf:type pant:Transport .
-            ?Transport pant:teCiutat ?ciutat .
-            ?ciutat rdf:type pant:Ciutat .
-            ?ciutat pant:nom ?nomCiutat .
             ?Transport pant:preu ?preu .
-            ?Transport pant:dataInici ?dataIni .
-            ?Transport pant:dataFi ?dataFi .
-            FILTER(?nomCiutat = "%s" && ?preu <= %s && ?centric = %s && ?dataIni >= "%s"^^xsd:date && ?dataFi <= "%s"^^xsd:date)
+            FILTER(?preu <= %s)
         }
-            FILTER(?nomCiutat = "%s")
-        }
-        LIMIT 30
-    """ % (ciutat, ))
+        ORDER BY ?preu
+        LIMIT 5
+    """ % (preuMax ))
 
     return gbd
 

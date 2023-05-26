@@ -255,11 +255,9 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
 
     # Recuperem les dades
     gbd = Graph()
-    logger.info(gbd)
     gbd.bind('PANT', PANT)
     gbd.parse(source='../bd/allotjaments.ttl', format='turtle')
 
-    # ToDo: Fer consulta en funció dels paràmetres rebuts a la funció i acabar retornant el resultat
     query = prepareQuery("""
         PREFIX pant:<https://ontologia.org#>
         SELECT ?Allotjament

@@ -173,7 +173,7 @@ def comunicacion():
 
                 # PROCÉS DE TRACTAMENT DE LA REQUEST
 
-                if accio == PANT.ObtenirAllotjaments:
+                if accio == PANT.ObtenirTransports:
                     transports = obtenir_transports()
                     gr = build_message(transports,
                                        ACL['inform'],
@@ -198,7 +198,7 @@ def obtenir_transports():
     gr = Graph()
     gr.bind('PANT', PANT)
 
-    # Per ara, ens inventem les dades
+    # Per ara, ens inventem les dades de les ciutats
     bcn = URIRef('https://ciutats.org/Barcelona')
     gr.add((bcn, RDF.type, PANT.Ciutat))
     gr.add((bcn, PANT.nom, Literal('Barcelona')))
@@ -207,40 +207,32 @@ def obtenir_transports():
     gr.add((ber, RDF.type, PANT.Ciutat))
     gr.add((ber, PANT.nom, Literal('Berlin')))
 
+
+
     ciutatsObj = {
         "BCN": bcn,
         "BER": ber
     }
 
-    nomsAllotjaments = {
-        "BCN": ['NH BARCELONA EIXAMPLE',
-                'GRAN HOTEL HAVANA',
-                'IBIS BARCELONA MERIDIANA',
-                'EXPO HOTEL BARCELONA',
-                'HOTEL SIDROME VILADECANS'],
-        "BER": ['NHOW BERLIN',
-                'NH BERLIN KURFURSTENDAMM',
-                'NH BERLIN CITY OST',
-                'MERCURE HOTEL MOA BERLIN',
-                'MELIA BERLIN']
+    nomsCompanyia = {
+        'Avio': ['Vueling', 'Ryanair'],
+        'Tren': ['Ave', 'Renfe'],
+        'Bus': ['TMB', 'DirectBus'],
+        'Taxi': ['AMB', 'PickUp']
     }
 
-    tipus = {
-        ['Avio',
-         'Tren',
-         'Bus',
-         'Taxi']
-    }
+    tipus = ['Avio', 'Tren', 'Bus', 'Taxi']
 
     i = 0
     while i < 500:
         for ciutat in ciutats:
             transport = URIRef('transport' + ciutat + str(i))
-            gr.add((transport, RDF.type, PANT.Allotjament))
-            gr.add((transport, PANT.nom, Literal(random.choice(nomsAllotjaments[ciutat]))))
-            gr.add((transport, PANT.centric, Literal(random.choice([True, False]))))
-            gr.add((transport, PANT.teCiutat, URIRef(ciutatsObj[ciutat])))
-            gr.add((transport, PANT.preu, Literal(random.uniform(40.0, 200.0))))
+            tipus_seleccionat = random.choice(tipus)
+            companyia_seleccionada = random.choice(nomsCompanyia[tipus_seleccionat])
+
+            gr.add((transport, PANT.tipus, Literal(tipus_seleccionat)))
+            gr.add((transport, PANT.deLaCompanyia, Literal(companyia_seleccionada)))
+            gr.add((transport, PANT.preu, Literal(random.uniform(30.0, 200.0))))
 
         i += 1
 
