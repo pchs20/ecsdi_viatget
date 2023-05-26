@@ -279,6 +279,18 @@ def interaccio_usuari():
         return render_template('formulari.html')
 
     else:   # POST
+        ciutatIni = request.form.get('ciutatIni')
+        ciutatFi = request.form.get('ciutatFi')
+        dataIni = datetime.strptime(str(request.form.get('dataIni')), "%Y-%m-%d").strftime("%d/%m/%Y")
+        dataFi = datetime.strptime(str(request.form.get('dataFi')), "%Y-%m-%d").strftime("%d/%m/%Y")
+        pressupost = request.form.get('pressupost')
+        centric = bool(request.form.get('centric', False))
+        ludica = request.form.get('ludica')
+        festiva = request.form.get('festiva')
+        cultural = request.form.get('cultural')
+        mati = bool(request.form.get('mati', False))
+        tarda = bool(request.form.get('tarda', False))
+        nit = bool(request.form.get('nit', False))
         logger.info('post')
         action = request.form.get('action')
         if action == 'pagar':
