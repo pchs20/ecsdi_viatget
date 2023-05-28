@@ -13,17 +13,14 @@ from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 from datetime import date
 
-from ecsdi_viatget.utils.FlaskServer import shutdown_server
-from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
-from ecsdi_viatget.utils.Agent import Agent
-from ecsdi_viatget.utils.Logging import config_logger
-from ecsdi_viatget.utils.Util import gethostname, registrar_agent, aconseguir_agent
+from utils.FlaskServer import shutdown_server
+from utils.ACLMessages import build_message, get_message_properties
+from utils.Agent import Agent
+from utils.Logging import config_logger
+from utils.Util import gethostname, registrar_agent
 
-from ecsdi_viatget.ontologies.ACL import ACL
-from ecsdi_viatget.ontologies.Viatget import PANT
-
-from amadeus import Client, ResponseError
-from ecsdi_viatget.utils.APIKeys import AMADEUS_KEY, AMADEUS_SECRET
+from ontologies.ACL import ACL
+from ontologies.Viatget import PANT
 
 
 # Paràmetres de la línia de comandes
@@ -200,12 +197,12 @@ def comunicacion():
 
 
 def crearValidacio(preu):
-    data_avui = date.today()
+    data_avui = date.today().strftime('%d/%m/%Y')
 
 
     graf = Graph()
     graf.bind('PANT', PANT)
-    content = URIRef('https://peticio_pagar_banc.org')
+    content = URIRef('https://validacio_pagament.org')
     graf.add((content, RDF.type, PANT.ValidacioPagament))
     graf.add((content, PANT.preu, Literal(preu)))
     graf.add((content, PANT.data, Literal(data_avui)))

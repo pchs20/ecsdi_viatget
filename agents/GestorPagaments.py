@@ -11,16 +11,15 @@ import socket
 from flask import Flask, request
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
-from datetime import date
 
-from ecsdi_viatget.utils.FlaskServer import shutdown_server
-from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
-from ecsdi_viatget.utils.Agent import Agent
-from ecsdi_viatget.utils.Logging import config_logger
-from ecsdi_viatget.utils.Util import gethostname, registrar_agent, aconseguir_agent
+from utils.FlaskServer import shutdown_server
+from utils.ACLMessages import build_message, send_message, get_message_properties
+from utils.Agent import Agent
+from utils.Logging import config_logger
+from utils.Util import gethostname, registrar_agent, aconseguir_agent
 
-from ecsdi_viatget.ontologies.ACL import ACL
-from ecsdi_viatget.ontologies.Viatget import PANT
+from ontologies.ACL import ACL
+from ontologies.Viatget import PANT
 
 
 # Paràmetres de la línia de comandes
@@ -164,6 +163,7 @@ def comunicacion():
                     factura = getFacturaPagament(num_targeta,tipus_targeta,preu)
                     gr = build_message(factura,
                                        ACL['inform'],
+                                       content=URIRef('https://validacio_pagament.org'),
                                        sender=GestorPagaments.uri,
                                        msgcnt=mss_cnt,
                                        receiver=msg['sender'])
@@ -211,7 +211,7 @@ def getFacturaPagament(numTargeta,tipusTargeta,preu):
     logger.info('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
     return gr
 
-def crearComprovant(preu,numT,tipusT):
+"""def crearComprovant(preu,numT,tipusT):
     logger.info('aaaaaaaaaaa')
 
     factura = getFacturaPagament(numT,tipusT,preu)
@@ -225,7 +225,7 @@ def crearComprovant(preu,numT,tipusT):
     graf.add((content, PANT.data, Literal(date.today())))
 
 
-    return graf
+    return graf"""
 
 def tidyup():
     """

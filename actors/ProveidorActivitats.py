@@ -7,23 +7,22 @@ from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
-import random
 
 from flask import Flask, request
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 
-from ecsdi_viatget.utils.FlaskServer import shutdown_server
-from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
-from ecsdi_viatget.utils.Agent import Agent
-from ecsdi_viatget.utils.Logging import config_logger
-from ecsdi_viatget.utils.Util import gethostname, registrar_agent, aconseguir_agent
+from utils.FlaskServer import shutdown_server
+from utils.ACLMessages import build_message, get_message_properties
+from utils.Agent import Agent
+from utils.Logging import config_logger
+from utils.Util import gethostname, registrar_agent
 
-from ecsdi_viatget.ontologies.ACL import ACL
-from ecsdi_viatget.ontologies.Viatget import PANT
+from ontologies.ACL import ACL
+from ontologies.Viatget import PANT
 
-from amadeus import Client, ResponseError
-from ecsdi_viatget.utils.APIKeys import AMADEUS_KEY, AMADEUS_SECRET
+from amadeus import Client
+from utils.APIKeys import AMADEUS_KEY, AMADEUS_SECRET
 
 
 # Paràmetres de la línia de comandes

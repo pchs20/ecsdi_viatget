@@ -7,7 +7,6 @@ from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
-import json
 
 from datetime import datetime, timedelta
 
@@ -15,15 +14,15 @@ from flask import Flask, request, render_template
 from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 
-from ecsdi_viatget.utils.FlaskServer import shutdown_server
-from ecsdi_viatget.utils.ACLMessages import build_message, send_message, get_message_properties
-from ecsdi_viatget.utils.Agent import Agent
-from ecsdi_viatget.utils.Logging import config_logger
-from ecsdi_viatget.utils.Util import gethostname, registrar_agent, aconseguir_agent
-from ecsdi_viatget.utils.ExcepcioGeneracioViatge import ExcepcioGeneracioViatge
+from utils.FlaskServer import shutdown_server
+from utils.ACLMessages import build_message, send_message
+from utils.Agent import Agent
+from utils.Logging import config_logger
+from utils.Util import gethostname, registrar_agent, aconseguir_agent
+from utils.ExcepcioGeneracioViatge import ExcepcioGeneracioViatge
 
-from ecsdi_viatget.ontologies.ACL import ACL
-from ecsdi_viatget.ontologies.Viatget import PANT
+from ontologies.ACL import ACL
+from ontologies.Viatget import PANT
 
 
 # Paràmetres de la línia de comandes
@@ -269,10 +268,8 @@ def fer_pagament(numTargeta,tipusTargeta,preu):
 
     factura = {
         # Preu
-        'preu': preu,
-
-
-
+        'preu': gr.value(subject=factura, predicate=PANT.preu),
+        'data': gr.value(subject=factura, predicate=PANT.data),
     }
 
     return factura
@@ -291,7 +288,6 @@ def interaccio_usuari():
     else:   # POST
         action = request.form.get('action')
         if action == 'pagar':
-            # ToDO
             numT = request.form.get('numTargeta')
             tipusT = request.form.get('tipusTargeta')
             preu = float(100)
@@ -309,7 +305,6 @@ def interaccio_usuari():
             mati = bool(request.form.get('mati', False))
             tarda = bool(request.form.get('tarda', False))
             nit = bool(request.form.get('nit', False))
-
 
         try:
             if action == 'pagar':
