@@ -210,7 +210,7 @@ def comunicacion():
 
 def refresh_allotjaments():
     logger.info('Fem refresh dels allotjaments que tenim guardats')
-
+    logger.info(port)
     # Obtenim un actor extern d'allotjaments
     logger.info('Busquem un actor extern allotjaments')
     actorAllotjaments = Agent(None, None, None, None)

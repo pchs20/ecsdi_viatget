@@ -19,7 +19,6 @@ directory-service-ontology.owl
 
 import argparse
 import logging
-import socket
 from multiprocessing import Process, Queue
 
 from flask import Flask, request, render_template

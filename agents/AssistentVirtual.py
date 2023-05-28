@@ -7,7 +7,6 @@ from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
-import json
 
 from datetime import datetime, timedelta
 
@@ -16,7 +15,7 @@ from rdflib import Graph, Namespace, Literal, URIRef
 from rdflib.namespace import RDF
 
 from utils.FlaskServer import shutdown_server
-from utils.ACLMessages import build_message, send_message, get_message_properties
+from utils.ACLMessages import build_message, send_message
 from utils.Agent import Agent
 from utils.Logging import config_logger
 from utils.Util import gethostname, registrar_agent, aconseguir_agent
@@ -120,6 +119,7 @@ def register_message():
 
 def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centric,
                                     ludica, festiva, cultural, mati, tarda, nit):
+    logger.info("entra demanar")
     # Obtenir el gestor de paquets
     gestorPaquets = Agent(None, None, None, None)
     aconseguir_agent(
@@ -235,6 +235,49 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
 
     return paquet
 
+def fer_pagament(numTargeta,tipusTargeta,preu):
+
+    gestorPagaments = Agent(None, None, None, None)
+    aconseguir_agent(
+        emisor=AssistentVirtual,
+        agent=gestorPagaments,
+        directori=DirectoryAgent,
+        tipus=agn.GestorPagaments,
+        mss_cnt=mss_cnt
+    )
+
+    # Creem el graf amb la petició
+    g = Graph()
+    peticio = URIRef('https://peticio.org')
+    g.bind('PANT', PANT)
+    g.add((peticio, RDF.type, PANT.RealitzarPagament))
+
+    g.add((peticio, PANT.numeroTargeta, Literal(numTargeta)))
+    g.add((peticio, PANT.tipusTargeta, Literal(tipusTargeta)))
+    g.add((peticio, PANT.preu, Literal(preu)))
+
+    missatge = build_message(
+        g,
+        perf=ACL.request,
+        sender=AssistentVirtual.uri,
+        receiver=gestorPagaments.uri,
+        content=peticio,
+        msgcnt=mss_cnt
+    )
+
+    gr = send_message(missatge, gestorPagaments.address)
+
+    missatge = gr.value(predicate=RDF.type, object=ACL.FipaAclMessage)
+    factura = gr.value(subject=missatge, predicate=ACL.content)
+
+    factura = {
+        # Preu
+        'preu': gr.value(subject=factura, predicate=PANT.preu),
+        'data': gr.value(subject=factura, predicate=PANT.data),
+    }
+
+    return factura
+
 
 @app.route("/formulari", methods=['GET', 'POST'])
 def interaccio_usuari():
@@ -247,23 +290,35 @@ def interaccio_usuari():
         return render_template('formulari.html')
 
     else:   # POST
-        ciutatIni = request.form.get('ciutatIni')
-        ciutatFi = request.form.get('ciutatFi')
-        dataIni = datetime.strptime(str(request.form.get('dataIni')), "%Y-%m-%d").strftime("%d/%m/%Y")
-        dataFi = datetime.strptime(str(request.form.get('dataFi')), "%Y-%m-%d").strftime("%d/%m/%Y")
-        pressupost = request.form.get('pressupost')
-        centric = bool(request.form.get('centric', False))
-        ludica = request.form.get('ludica')
-        festiva = request.form.get('festiva')
-        cultural = request.form.get('cultural')
-        mati = bool(request.form.get('mati', False))
-        tarda = bool(request.form.get('tarda', False))
-        nit = bool(request.form.get('nit', False))
+        action = request.form.get('action')
+        if action == 'pagar':
+            numT = request.form.get('numTargeta')
+            tipusT = request.form.get('tipusTargeta')
+            preu = float(100)
+        else:
+
+            ciutatIni = request.form.get('ciutatIni')
+            ciutatFi = request.form.get('ciutatFi')
+            dataIni = datetime.strptime(str(request.form.get('dataIni')), "%Y-%m-%d").strftime("%d/%m/%Y")
+            dataFi = datetime.strptime(str(request.form.get('dataFi')), "%Y-%m-%d").strftime("%d/%m/%Y")
+            pressupost = request.form.get('pressupost')
+            centric = bool(request.form.get('centric', False))
+            ludica = request.form.get('ludica')
+            festiva = request.form.get('festiva')
+            cultural = request.form.get('cultural')
+            mati = bool(request.form.get('mati', False))
+            tarda = bool(request.form.get('tarda', False))
+            nit = bool(request.form.get('nit', False))
 
         try:
-            paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centric,
-                                    ludica, festiva, cultural, mati, tarda, nit)
-            return render_template('resultat.html', paquet=paquet)
+            if action == 'pagar':
+                logger.info("eeeeeeeeeeeee")
+                factura = fer_pagament(numT,tipusT,preu)
+                return render_template('factura.html', factura=factura)
+            else:
+                paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centric,
+                                              ludica, festiva, cultural, mati, tarda, nit)
+                return render_template('resultat.html', paquet=paquet)
         except ExcepcioGeneracioViatge as e:
             return render_template('formulari.html', error=e.motiu)
 

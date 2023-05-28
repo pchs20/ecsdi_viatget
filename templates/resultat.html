@@ -90,6 +90,34 @@
         </ul>
     </div>
 
+<form method="post" action="">
+    <h3>Pagament:</h3>
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Numero Targeta:
+        </label>
+        <input type="number" name="numTargeta" required/>
+    </div>
+    </br>
+<div style="display: flex; justify-content: space-between; width: 200px;">
+        <label>
+            Tipus de Targeta:
+        </label>
+        <select name="tipusTargeta" required>
+            <option value="Visa">Visa</option>
+            <option value="MasterCard">MasterCard</option>
+        </select>
+    </div>
+    </br>
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+        <p>Preu: {{preu}}</p>
+    </div>
+    </br>
+    <input type="hidden" name="action" value="pagar"/>
+    <div>
+        <button type="submit">Pagar</button>
+    </div>
+</form>
     <br><br>
 
     <h2>PREU FINAL</h2>

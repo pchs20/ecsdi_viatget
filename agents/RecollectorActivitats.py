@@ -9,7 +9,7 @@ import argparse
 import socket
 
 from flask import Flask, request
-from rdflib import Graph, Namespace, Literal, URIRef
+from rdflib import Graph, Namespace, URIRef
 from rdflib.namespace import RDF
 from rdflib.plugins.sparql import prepareQuery
 
