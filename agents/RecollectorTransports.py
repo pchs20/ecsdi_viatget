@@ -243,7 +243,7 @@ def refresh_transports():
     ultimRefresh = datetime.today()
 
 
-def obtenir_possibles_transports(ciutat, preuMax):
+def obtenir_possibles_transports(preuMax):
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
     dif = today - ultimRefresh

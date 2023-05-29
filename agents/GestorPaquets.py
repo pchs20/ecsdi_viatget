@@ -121,8 +121,8 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # PLANIFICACIÓ ALLOTJAMENT I TRANSPORTS
 
     resposta_allotjaments = getPossiblesAllotjaments(dataIni, dataFi, centric, ciutatFi, pressupost)
-    possibles_transport1 = getPossiblesTransports(ciutatIni, pressupost)
-    possibles_transport2 = getPossiblesTransports(ciutatIni, pressupost)
+    possibles_transport1 = getPossiblesTransports(pressupost)
+    possibles_transport2 = getPossiblesTransports(pressupost)
 
     # Aquí faríem la planificació allotjament + transport
     llista_allotjaments = resposta_allotjaments.triples((None, RDF.type, PANT.Allotjament))
