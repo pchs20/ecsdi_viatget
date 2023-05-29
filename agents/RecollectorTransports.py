@@ -270,12 +270,10 @@ def obtenir_possibles_transports(preuMax):
 
     resultados = gbd.query(query).result
     num_resultados = len(resultados)
-    logger.info(num_resultados)
     gr = Graph()
     gr.bind('PANT', PANT)
 
     for a in resultados:
-        print(a)
         aObj = URIRef(a[0])
         gr.add((aObj, RDF.type, PANT.Transport))
         gr.add((aObj, PANT.tipus, gbd.value(subject=aObj, predicate=PANT.tipus)))
@@ -283,7 +281,6 @@ def obtenir_possibles_transports(preuMax):
         gr.add((aObj, PANT.preu, gbd.value(subject=aObj, predicate=PANT.preu)))
 
     for resultado in resultados:
-        logger.info(resultado)
         enlace = resultado[0]
         if isinstance(enlace, URIRef):
             # Obtener el enlace como cadena de texto
@@ -308,10 +305,6 @@ def obtenir_possibles_transports(preuMax):
             for resultado_datos in resultados_datos:
                 tipus = str(resultado_datos['tipus'])
                 preu = float(resultado_datos['preu'])
-
-                print(f"transport: {transport}")
-                print(f"tipus: {tipus}")
-                print(f"Preu: {preu}")
 
 
     return gr
