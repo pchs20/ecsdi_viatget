@@ -92,49 +92,39 @@
     {% else %}
     <p>No has demanat cap activitat</p>
     {% endif %}
-    <div>
-        <ul>
-            {%  for act in activitats %}
-            <li>
-                {{act}}
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
 
-<form method="post" action="">
-    <h3>Pagament:</h3>
-    <div style="display: flex; justify-content: space-between; width: 200px;">
-        <label>
-            Numero Targeta:
-        </label>
-        <input type="number" name="numTargeta" required/>
-    </div>
-    </br>
-<div style="display: flex; justify-content: space-between; width: 200px;">
-        <label>
-            Tipus de Targeta:
-        </label>
-        <select name="tipusTargeta" required>
-            <option value="Visa">Visa</option>
-            <option value="MasterCard">MasterCard</option>
-        </select>
-    </div>
-    </br>
-    <div style="display: flex; justify-content: space-between; width: 200px;">
-        <p>Preu: {{preu}}</p>
-    </div>
-    </br>
-    <input type="hidden" name="action" value="pagar"/>
-    <div>
-        <button type="submit">Pagar</button>
-    </div>
-</form>
     <br><br>
 
-    <h2>PREU FINAL</h2>
-
-    <p>{{ paquet.preu }}</p>
+    <h2>Pagaments</h2>
+    <form method="post" action="">
+        <div style="display: flex; justify-content: space-between; width: 200px;">
+            <label>
+                Numero Targeta:
+            </label>
+            <input type="number" name="numTargeta" required/>
+        </div>
+        </br>
+    <div style="display: flex; justify-content: space-between; width: 200px;">
+            <label>
+                Tipus de Targeta:
+            </label>
+            <select name="tipusTargeta" required>
+                <option value="Visa">Visa</option>
+                <option value="MasterCard">MasterCard</option>
+            </select>
+        </div>
+        </br>
+        <div style="display: flex; justify-content: space-between; width: 200px;">
+            <p><b>Preu: {{ paquet.preu }}</b></p>
+        </div>
+        </br>
+        <input type="hidden" name="action" value="pagar"/>
+        <input type="hidden" name="preu" value="{{ paquet.preu }}"/>
+        <div>
+            <button type="submit">Pagar</button>
+        </div>
+    </form>
+    <br><br>
 
 </body>
 </html>

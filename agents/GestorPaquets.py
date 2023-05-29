@@ -138,6 +138,7 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
 
     # Posem dades decidides de l'allotjament
     graf.add((allotjament_obj, PANT.nom, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.nom)))
+    preuAllotj = float(resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.preu))
     graf.add((allotjament_obj, PANT.preu, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.preu)))
     graf.add((allotjament_obj, PANT.centric, resposta_allotjaments.value(subject=allotjament_obj, predicate=PANT.centric)))
     graf.add((paquet, PANT.teAllotjament, URIRef(allotjament_obj)))
@@ -145,13 +146,14 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # Posem dades decidides del vol d'anada
     graf.add((transport1, PANT.tipus, possibles_transport1.value(subject=transport1, predicate=PANT.tipus)))
     graf.add((transport1, PANT.deLaCompanyia, possibles_transport1.value(subject=transport1, predicate=PANT.deLaCompanyia)))
-    logger.info(possibles_transport1.value(subject=transport1, predicate=PANT.deLaCompanyia))
+    preuTransp1 = float(possibles_transport1.value(subject=transport1, predicate=PANT.preu))
     graf.add((transport1, PANT.preu, possibles_transport1.value(subject=transport1, predicate=PANT.preu)))
     graf.add((paquet, PANT.teTransportAnada, URIRef(transport1)))
 
     # Posem dades decidides del vol de tornada
     graf.add((transport2, PANT.tipus, possibles_transport2.value(subject=transport2, predicate=PANT.tipus)))
     graf.add((transport2, PANT.deLaCompanyia, possibles_transport2.value(subject=transport2, predicate=PANT.deLaCompanyia)))
+    preuTransp2 = float(possibles_transport2.value(subject=transport2, predicate=PANT.preu))
     graf.add((transport2, PANT.preu, possibles_transport2.value(subject=transport2, predicate=PANT.preu)))
     graf.add((paquet, PANT.teTransportTornada, URIRef(transport2)))
 
@@ -193,7 +195,8 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
             i += 1
 
     # CALCULAR EL PREU FINAL DEL PAQUET
-    graf.add((paquet, PANT.preu, Literal(100)))
+    preuFinal = round(numDies*preuAllotj + preuTransp1 + preuTransp1, 2)
+    graf.add((paquet, PANT.preu, Literal(preuFinal)))
 
     return graf
 

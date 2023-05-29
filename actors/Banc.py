@@ -173,12 +173,9 @@ def comunicacion():
                 # PROCÉS DE TRACTAMENT DE LA REQUEST
 
                 if accio == PANT.Pagar:
-                    logger.info("11111111111111111")
-
                     preu = float(gm.value(subject=content, predicate=PANT.preu))
 
                     validacio = crearValidacio(preu)
-                    logger.info("22222222222222222222222")
                     gr = build_message(validacio,
                                        ACL['inform'],
                                        sender=Banc.uri,
@@ -199,7 +196,6 @@ def comunicacion():
 def crearValidacio(preu):
     data_avui = date.today().strftime('%d/%m/%Y')
 
-
     graf = Graph()
     graf.bind('PANT', PANT)
     content = URIRef('https://validacio_pagament.org')
@@ -207,9 +203,6 @@ def crearValidacio(preu):
     graf.add((content, PANT.preu, Literal(preu)))
     graf.add((content, PANT.data, Literal(data_avui)))
 
-
-    #graf = send_message(missatge, agent_GestorPagament.address)
-    logger.info('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
     return graf
 
 def tidyup():

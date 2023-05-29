@@ -327,7 +327,6 @@ def interaccio_usuari():
 
         try:
             if action == 'pagar':
-                logger.info("eeeeeeeeeeeee")
                 factura = fer_pagament(numT,tipusT,preu)
                 return render_template('factura.html', factura=factura)
             else:

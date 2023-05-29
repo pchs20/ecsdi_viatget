@@ -181,7 +181,6 @@ def comunicacion():
 
 
 def getFacturaPagament(numTargeta,tipusTargeta,preu):
-
     agent_Banc = Agent('', '', '', None)
     aconseguir_agent(
         emisor=GestorPagaments,
@@ -190,7 +189,6 @@ def getFacturaPagament(numTargeta,tipusTargeta,preu):
         tipus=agn.Banc,
         mss_cnt=mss_cnt
     )
-    logger.info(agent_Banc)
     graf = Graph()
     graf.bind('PANT', PANT)
     content = URIRef('https://peticio_pagar.org')
@@ -208,24 +206,8 @@ def getFacturaPagament(numTargeta,tipusTargeta,preu):
         msgcnt=mss_cnt
     )
     gr = send_message(missatge, agent_Banc.address)
-    logger.info('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
     return gr
 
-"""def crearComprovant(preu,numT,tipusT):
-    logger.info('aaaaaaaaaaa')
-
-    factura = getFacturaPagament(numT,tipusT,preu)
-
-    logger.info('grstorqqqqqqqqqqqqqqqqq')
-    graf = Graph()
-    graf.bind('PANT', PANT)
-    content = URIRef('https://comprovant.org')
-    graf.add((content, RDF.type, PANT.ComprovantPagament))
-    graf.add((content, PANT.preu, Literal(preu)))
-    graf.add((content, PANT.data, Literal(date.today())))
-
-
-    return graf"""
 
 def tidyup():
     """
@@ -234,6 +216,7 @@ def tidyup():
     """
     global cola1
     cola1.put(0)
+
 
 def agentbehavior1():
     """

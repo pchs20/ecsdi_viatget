@@ -307,12 +307,6 @@ def obtenir_possibles_transports(preuMax):
                 preu = float(resultado_datos['preu'])
                 companyia = str(resultado_datos['companyia'])
 
-                print(f"transport: {transport}")
-                print(f"tipus: {tipus}")
-                print(f"Preu: {preu}")
-                print(f"Companyia: {companyia}")
-
-
     return gr
 
 
