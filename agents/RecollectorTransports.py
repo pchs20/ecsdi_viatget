@@ -243,7 +243,7 @@ def refresh_transports():
     ultimRefresh = datetime.today()
 
 
-def obtenir_possibles_transports(preuMax):
+def obtenir_possibles_transports(ciutat, preuMax):
     # Mirem si cal fer refresh de les dades: si l'últim refresh fa més d'un dia
     today = datetime.today()
     dif = today - ultimRefresh
@@ -305,6 +305,12 @@ def obtenir_possibles_transports(preuMax):
             for resultado_datos in resultados_datos:
                 tipus = str(resultado_datos['tipus'])
                 preu = float(resultado_datos['preu'])
+                companyia = str(resultado_datos['companyia'])
+
+                print(f"transport: {transport}")
+                print(f"tipus: {tipus}")
+                print(f"Preu: {preu}")
+                print(f"Companyia: {companyia}")
 
 
     return gr

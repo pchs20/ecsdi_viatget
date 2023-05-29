@@ -121,8 +121,8 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # PLANIFICACIÓ ALLOTJAMENT I TRANSPORTS
 
     resposta_allotjaments = getPossiblesAllotjaments(dataIni, dataFi, centric, ciutatFi, pressupost)
-    possibles_transport1 = getPossiblesTransports(pressupost)
-    possibles_transport2 = getPossiblesTransports(pressupost)
+    possibles_transport1 = getPossiblesTransports(ciutatIni, pressupost)
+    possibles_transport2 = getPossiblesTransports(ciutatIni, pressupost)
 
     # Aquí faríem la planificació allotjament + transport
     llista_allotjaments = resposta_allotjaments.triples((None, RDF.type, PANT.Allotjament))
@@ -145,6 +145,7 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     # Posem dades decidides del vol d'anada
     graf.add((transport1, PANT.tipus, possibles_transport1.value(subject=transport1, predicate=PANT.tipus)))
     graf.add((transport1, PANT.deLaCompanyia, possibles_transport1.value(subject=transport1, predicate=PANT.deLaCompanyia)))
+    logger.info(possibles_transport1.value(subject=transport1, predicate=PANT.deLaCompanyia))
     graf.add((transport1, PANT.preu, possibles_transport1.value(subject=transport1, predicate=PANT.preu)))
     graf.add((paquet, PANT.teTransportAnada, URIRef(transport1)))
 

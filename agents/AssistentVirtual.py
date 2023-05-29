@@ -188,14 +188,14 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
     transport_obj = gr.value(subject=paquet, predicate=PANT.teTransportAnada)
     transport = {}
     transport['tipus'] = str(gr.value(subject=transport_obj, predicate=PANT.tipus))
-    transport['companyia'] = bool(gr.value(subject=transport_obj, predicate=PANT.deLaCompanyia))
+    transport['companyia'] = str(gr.value(subject=transport_obj, predicate=PANT.deLaCompanyia))
     transport['preu'] = float(gr.value(subject=transport_obj, predicate=PANT.preu))
 
     #dades transport tornada
     transport1_obj = gr.value(subject=paquet, predicate=PANT.teTransportTornada)
     transport1 = {}
     transport1['tipus'] = str(gr.value(subject=transport1_obj, predicate=PANT.tipus))
-    transport1['companyia'] = bool(gr.value(subject=transport1_obj, predicate=PANT.deLaCompanyia))
+    transport1['companyia'] = str(gr.value(subject=transport1_obj, predicate=PANT.deLaCompanyia))
     transport1['preu'] = float(gr.value(subject=transport1_obj, predicate=PANT.preu))
 
 
