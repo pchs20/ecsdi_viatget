@@ -255,11 +255,9 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
 
     # Recuperem les dades
     gbd = Graph()
-    logger.info(gbd)
     gbd.bind('PANT', PANT)
     gbd.parse(source='../bd/allotjaments.ttl', format='turtle')
 
-    # ToDo: Fer consulta en funció dels paràmetres rebuts a la funció i acabar retornant el resultat
     query = prepareQuery("""
         PREFIX pant:<https://ontologia.org#>
         SELECT ?Allotjament
@@ -282,7 +280,6 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
     gr.bind('PANT', PANT)
 
     for a in resultados:
-        print(a)
         aObj = URIRef(a[0])
         gr.add((aObj, RDF.type, PANT.Allotjament))
         gr.add((aObj, PANT.nom, gbd.value(subject=aObj, predicate=PANT.nom)))
@@ -291,9 +288,7 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
         gr.add((aObj, PANT.preu, gbd.value(subject=aObj, predicate=PANT.preu)))
 
 
-    logger.info(num_resultados)
     for resultado in resultados:
-        logger.info(resultado)
         enlace = resultado[0]
         if isinstance(enlace, URIRef):
             # Obtener el enlace como cadena de texto
@@ -318,10 +313,6 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
             for resultado_datos in resultados_datos:
                 nom = str(resultado_datos['nom'])
                 preu = float(resultado_datos['preu'])
-
-                print(f"Allotjament: {allotjament}")
-                print(f"Nom: {nom}")
-                print(f"Preu: {preu}")
 
     return gr
 

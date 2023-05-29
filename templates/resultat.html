@@ -9,16 +9,28 @@
     <h2>Dades allotjament</h2>
     <ul>
         <li>Nom: {{ paquet.allotjament.nom }}</li>
-        <li>Preu: {{ paquet.allotjament.preu }}</li>
         <li>Centric: {{ paquet.allotjament.centric }}</li>
+        <li>Preu: {{ paquet.allotjament.preu }}</li>
     </ul>
 
     <br><br>
 
     <h2>Dades del transport</h2>
+    <h3>Transport d'anada</h3>
+    <ul>
+        <li>Tipus: {{ paquet.transportAnada.tipus }}</li>
+        <li>Companyia: {{ paquet.transportAnada.companyia }}</li>
+        <li>Preu: {{ paquet.transportAnada.preu }}</li>
+    </ul>
 
-    <p>Vol d'anada: {{volAnada}}</p>
-    <p>Vol de tornada: {{volTornada}}</p>
+    <br>
+
+    <h3>Transport de tornada</h3>
+    <ul>
+        <li>Tipus: {{ paquet.transportTornada.tipus }}</li>
+        <li>Companyia: {{ paquet.transportTornada.companyia }}</li>
+        <li>Preu: {{ paquet.transportTornada.preu }}</li>
+    </ul>
 
     <br><br>
 
