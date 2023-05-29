@@ -73,7 +73,8 @@
 <http://webprotege.stanford.edu/ecsdi_viatget/teCiutat> rdf:type owl:ObjectProperty ;
                                                         rdfs:subPropertyOf owl:topObjectProperty ;
                                                         rdfs:domain <http://webprotege.stanford.edu/Activitat> ,
-                                                                    <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ;
+                                                                    <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ,
+                                                                    <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
                                                         rdfs:range <http://webprotege.stanford.edu/Ciutat> ;
                                                         rdfs:label "te ciutat"@es .
 
@@ -141,7 +142,8 @@
                                      rdfs:domain <http://webprotege.stanford.edu/Activitat> ,
                                                  <http://webprotege.stanford.edu/Ciutat> ,
                                                  <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ,
-                                                 <http://webprotege.stanford.edu/ecsdi_viatget/CompanyiaTransport> ;
+                                                 <http://webprotege.stanford.edu/ecsdi_viatget/CompanyiaTransport> ,
+                                                 <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
                                      rdfs:range xsd:string ;
                                      rdfs:label "nom" .
 
@@ -182,7 +184,9 @@
 ###  http://webprotege.stanford.edu/ecsdi_viatget/data
 <http://webprotege.stanford.edu/ecsdi_viatget/data> rdf:type owl:DatatypeProperty ;
                                                     rdfs:subPropertyOf owl:topDataProperty ;
-                                                    rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
+                                                    rdfs:domain <http://webprotege.stanford.edu/ComprovantPagament> ,
+                                                                <http://webprotege.stanford.edu/ValidacioPagament> ,
+                                                                <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
                                                     rdfs:range xsd:dateTime ;
                                                     rdfs:label "data"@es .
 
@@ -218,8 +222,10 @@
 ###  http://webprotege.stanford.edu/ecsdi_viatget/preu
 <http://webprotege.stanford.edu/ecsdi_viatget/preu> rdf:type owl:DatatypeProperty ;
                                                     rdfs:subPropertyOf owl:topDataProperty ;
-                                                    rdfs:domain <http://webprotege.stanford.edu/Pagar> ,
+                                                    rdfs:domain <http://webprotege.stanford.edu/ComprovantPagament> ,
+                                                                <http://webprotege.stanford.edu/Pagar> ,
                                                                 <http://webprotege.stanford.edu/RealitzarPagament> ,
+                                                                <http://webprotege.stanford.edu/ValidacioPagament> ,
                                                                 <http://webprotege.stanford.edu/ecsdi_viatget/Allotjament> ,
                                                                 <http://webprotege.stanford.edu/ecsdi_viatget/Transport> ;
                                                     rdfs:range xsd:float ;
@@ -317,6 +323,11 @@
 <http://webprotege.stanford.edu/RealitzarPagament> rdf:type owl:Class ;
                                                    rdfs:subClassOf <http://webprotege.stanford.edu/R79kFHXLHEItDb8KIeVk0uU> ;
                                                    rdfs:label "Realitzar pagament" .
+
+
+###  http://webprotege.stanford.edu/Transo
+<http://webprotege.stanford.edu/Transo> rdf:type owl:Class ;
+                                        rdfs:label "Transo" .
 
 
 ###  http://webprotege.stanford.edu/ValidacioPagament
