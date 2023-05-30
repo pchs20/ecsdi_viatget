@@ -6,12 +6,18 @@
 <body>
     <h1>El resultat obtingut es el següent: </h1>
 
+    {% if paquet.dataIni != paquet.dataFi %}
     <h2>Dades allotjament</h2>
     <ul>
         <li>Nom: {{ paquet.allotjament.nom }}</li>
         <li>Centric: {{ paquet.allotjament.centric }}</li>
         <li>Preu: {{ paquet.allotjament.preu }}</li>
     </ul>
+    {% else %}
+     <ul>
+        <li> No et cal allotjament !! </li>
+     </ul>
+    {% endif %}
 
     <br><br>
 
@@ -20,6 +26,7 @@
     <ul>
         <li>Tipus: {{ paquet.transportAnada.tipus }}</li>
         <li>Companyia: {{ paquet.transportAnada.companyia }}</li>
+        <li>Codi: {{ paquet.transportAnada.codi }}</li>
         <li>Preu: {{ paquet.transportAnada.preu }}</li>
     </ul>
 
@@ -29,6 +36,7 @@
     <ul>
         <li>Tipus: {{ paquet.transportTornada.tipus }}</li>
         <li>Companyia: {{ paquet.transportTornada.companyia }}</li>
+        <li>Codi: {{ paquet.transportTornada.codi }}</li>
         <li>Preu: {{ paquet.transportTornada.preu }}</li>
     </ul>
 

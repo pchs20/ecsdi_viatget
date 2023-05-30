@@ -255,7 +255,6 @@ def obtenir_possibles_transports(preuMax):
     gbd.bind('PANT', PANT)
     gbd.parse(source='../bd/transports.ttl', format='turtle')
 
-    # ToDo: Fer consulta en funció dels paràmetres rebuts a la funció i acabar retornant el resultat
     query = prepareQuery("""
         PREFIX pant:<https://ontologia.org#>
         SELECT ?Transport
@@ -278,6 +277,7 @@ def obtenir_possibles_transports(preuMax):
         gr.add((aObj, RDF.type, PANT.Transport))
         gr.add((aObj, PANT.tipus, gbd.value(subject=aObj, predicate=PANT.tipus)))
         gr.add((aObj, PANT.deLaCompanyia, gbd.value(subject=aObj, predicate=PANT.deLaCompanyia)))
+        gr.add((aObj, PANT.nom, gbd.value(subject=aObj, predicate=PANT.nom)))
         gr.add((aObj, PANT.preu, gbd.value(subject=aObj, predicate=PANT.preu)))
 
     for resultado in resultados:
@@ -307,6 +307,8 @@ def obtenir_possibles_transports(preuMax):
                 preu = float(resultado_datos['preu'])
                 companyia = str(resultado_datos['companyia'])
 
+    n = len(gr)
+    logger.info(n)
     return gr
 
 

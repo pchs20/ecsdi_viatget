@@ -177,18 +177,20 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
     paquet = gr.value(subject=missatge, predicate=ACL.content)
 
     # Dades allotjament
-    allotjament_obj = gr.value(subject=paquet, predicate=PANT.teAllotjament)
-    allotjament = {}
-    allotjament['nom'] = str(gr.value(subject=allotjament_obj, predicate=PANT.nom))
-    allotjament['preu'] = float(gr.value(subject=allotjament_obj, predicate=PANT.preu))
+    if dataIni != dataFi :
+        allotjament_obj = gr.value(subject=paquet, predicate=PANT.teAllotjament)
+        allotjament = {}
+        allotjament['nom'] = str(gr.value(subject=allotjament_obj, predicate=PANT.nom))
+        allotjament['preu'] = float(gr.value(subject=allotjament_obj, predicate=PANT.preu))
 
-    allotjament['centric'] = bool(gr.value(subject=allotjament_obj, predicate=PANT.centric))
+        allotjament['centric'] = bool(gr.value(subject=allotjament_obj, predicate=PANT.centric))
 
     #dades transport anada
     transport_obj = gr.value(subject=paquet, predicate=PANT.teTransportAnada)
     transport = {}
     transport['tipus'] = str(gr.value(subject=transport_obj, predicate=PANT.tipus))
     transport['companyia'] = str(gr.value(subject=transport_obj, predicate=PANT.deLaCompanyia))
+    transport['codi'] = str(gr.value(subject=transport_obj, predicate=PANT.nom))
     transport['preu'] = float(gr.value(subject=transport_obj, predicate=PANT.preu))
 
     #dades transport tornada
@@ -196,6 +198,7 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
     transport1 = {}
     transport1['tipus'] = str(gr.value(subject=transport1_obj, predicate=PANT.tipus))
     transport1['companyia'] = str(gr.value(subject=transport1_obj, predicate=PANT.deLaCompanyia))
+    transport1['codi'] = str(gr.value(subject=transport1_obj, predicate=PANT.nom))
     transport1['preu'] = float(gr.value(subject=transport1_obj, predicate=PANT.preu))
 
 
@@ -211,6 +214,7 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
         activitats[data_act_format] = {}
         dates.append(data_act_format)
         data_act += timedelta(days=1)
+    logger.info(dates)
 
     teActivitats = False
     for s, p, o in gr.triples((None, RDF.type, PANT.Activitat)):
@@ -231,7 +235,8 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
 
     paquet = {
         # Dades del paquet
-        'allotjament': allotjament,
+
+        #'allotjament': allotjament,
         'transportAnada': transport,
         'transportTornada': transport1,
         'activitats': activitats_sorted,
@@ -246,6 +251,8 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
         'nit': nit,
         'teActivitats': teActivitats,
         'dates': dates,
+        'dataIni' :dataIni_date,
+        'dataFi' : dataFi_date,
     }
 
     return paquet

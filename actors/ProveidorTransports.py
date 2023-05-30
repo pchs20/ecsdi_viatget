@@ -221,6 +221,13 @@ def obtenir_transports():
         'Taxi': ['AMB', 'PickUp']
     }
 
+    codi = {
+        'Avio': ['A03759', 'A04582'],
+        'Tren': ['R3', 'R8'],
+        'Bus': ['218', 'FlixBus', 'N8'],
+        'Taxi': ['T0239', 'T2398092']
+    }
+
     tipus = ['Avio', 'Tren', 'Bus', 'Taxi']
 
     i = 0
@@ -229,10 +236,12 @@ def obtenir_transports():
             transport = URIRef('transport' + ciutat + str(i))
             tipus_seleccionat = random.choice(tipus)
             companyia_seleccionada = random.choice(nomsCompanyia[tipus_seleccionat])
+            codi_seleccionat = random.choice(codi[tipus_seleccionat])
 
             gr.add((transport, RDF.type, PANT.Transport))
             gr.add((transport, PANT.tipus, Literal(tipus_seleccionat)))
             gr.add((transport, PANT.deLaCompanyia, Literal(companyia_seleccionada)))
+            gr.add((transport, PANT.nom, Literal(codi_seleccionat)))
             gr.add((transport, PANT.preu, Literal(random.uniform(50.0, 200.0))))
 
         i += 1
