@@ -177,29 +177,30 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
     paquet = gr.value(subject=missatge, predicate=ACL.content)
 
     # Dades allotjament
-    if dataIni != dataFi :
+    if dataIni != dataFi:
         allotjament_obj = gr.value(subject=paquet, predicate=PANT.teAllotjament)
         allotjament = {}
         allotjament['nom'] = str(gr.value(subject=allotjament_obj, predicate=PANT.nom))
         allotjament['preu'] = float(gr.value(subject=allotjament_obj, predicate=PANT.preu))
-
         allotjament['centric'] = bool(gr.value(subject=allotjament_obj, predicate=PANT.centric))
 
     #dades transport anada
-    transport_obj = gr.value(subject=paquet, predicate=PANT.teTransportAnada)
-    transport = {}
-    transport['tipus'] = str(gr.value(subject=transport_obj, predicate=PANT.tipus))
-    transport['companyia'] = str(gr.value(subject=transport_obj, predicate=PANT.deLaCompanyia))
-    transport['codi'] = str(gr.value(subject=transport_obj, predicate=PANT.nom))
-    transport['preu'] = float(gr.value(subject=transport_obj, predicate=PANT.preu))
+    if ciutatIni != ciutatFi:
+        transport_obj = gr.value(subject=paquet, predicate=PANT.teTransportAnada)
+        transport = {}
+        transport['tipus'] = str(gr.value(subject=transport_obj, predicate=PANT.tipus))
+        transport['companyia'] = str(gr.value(subject=transport_obj, predicate=PANT.deLaCompanyia))
+        transport['codi'] = str(gr.value(subject=transport_obj, predicate=PANT.nom))
+        transport['preu'] = float(gr.value(subject=transport_obj, predicate=PANT.preu))
 
     #dades transport tornada
-    transport1_obj = gr.value(subject=paquet, predicate=PANT.teTransportTornada)
-    transport1 = {}
-    transport1['tipus'] = str(gr.value(subject=transport1_obj, predicate=PANT.tipus))
-    transport1['companyia'] = str(gr.value(subject=transport1_obj, predicate=PANT.deLaCompanyia))
-    transport1['codi'] = str(gr.value(subject=transport1_obj, predicate=PANT.nom))
-    transport1['preu'] = float(gr.value(subject=transport1_obj, predicate=PANT.preu))
+    if ciutatIni != ciutatFi:
+        transport1_obj = gr.value(subject=paquet, predicate=PANT.teTransportTornada)
+        transport1 = {}
+        transport1['tipus'] = str(gr.value(subject=transport1_obj, predicate=PANT.tipus))
+        transport1['companyia'] = str(gr.value(subject=transport1_obj, predicate=PANT.deLaCompanyia))
+        transport1['codi'] = str(gr.value(subject=transport1_obj, predicate=PANT.nom))
+        transport1['preu'] = float(gr.value(subject=transport1_obj, predicate=PANT.preu))
 
 
     # Dades activitats
@@ -231,29 +232,93 @@ def demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centr
     activitats_sorted = dict(sorted(activitats.items(), key=lambda item: date_key(item[0])))
 
     # Demanar preu final
-    preu = str(gr.value(subject=paquet, predicate=PANT.preu))
+    preu = float(gr.value(subject=paquet, predicate=PANT.preu))
 
-    paquet = {
-        # Dades del paquet
+    logger.info(preu)
+    logger.info(pressupost)
+    if dataIni == dataFi and ciutatIni == ciutatFi:
+        paquet = {
+            # Dades del paquet
+            'activitats': activitats_sorted,
+            # Preu
+            'preu': preu,
+            # Més info x construir l'html
+            'numDies': (dataFi_date - dataIni_date).days - 1,
+            'mati': mati,
+            'tarda': tarda,
+            'nit': nit,
+            'teActivitats': teActivitats,
+            'dates': dates,
+            'dataIni' :dataIni_date,
+            'dataFi' : dataFi_date,
+            'ciutatIni' : ciutatIni,
+            'ciutatFi' : ciutatFi,
+            'pressupost' : pressupost,
+        }
+    elif dataIni == dataFi and ciutatIni != ciutatFi:
+        paquet = {
+            # Dades del paquet
+            'transportAnada': transport,
+            'transportTornada': transport1,
+            'activitats': activitats_sorted,
+            # Preu
+            'preu': preu,
+            # Més info x construir l'html
+            'numDies': (dataFi_date - dataIni_date).days - 1,
+            'mati': mati,
+            'tarda': tarda,
+            'nit': nit,
+            'teActivitats': teActivitats,
+            'dates': dates,
+            'dataIni': dataIni_date,
+            'dataFi': dataFi_date,
+            'ciutatIni': ciutatIni,
+            'ciutatFi': ciutatFi,
+            'pressupost': pressupost,
+        }
+    elif dataIni != dataFi and ciutatIni == ciutatFi:
+        paquet = {
+            # Dades del paquet
+            'allotjament': allotjament,
+            'activitats': activitats_sorted,
+            # Preu
+            'preu': preu,
+            # Més info x construir l'html
+            'numDies': (dataFi_date - dataIni_date).days - 1,
+            'mati': mati,
+            'tarda': tarda,
+            'nit': nit,
+            'teActivitats': teActivitats,
+            'dates': dates,
+            'dataIni': dataIni_date,
+            'dataFi': dataFi_date,
+            'ciutatIni': ciutatIni,
+            'ciutatFi': ciutatFi,
+            'pressupost': pressupost,
+        }
+    else :
+        paquet = {
+            # Dades del paquet
 
-        #'allotjament': allotjament,
-        'transportAnada': transport,
-        'transportTornada': transport1,
-        'activitats': activitats_sorted,
-
-        # Preu
-        'preu': preu,
-
-        # Més info x construir l'html
-        'numDies': (dataFi_date - dataIni_date).days - 1,
-        'mati': mati,
-        'tarda': tarda,
-        'nit': nit,
-        'teActivitats': teActivitats,
-        'dates': dates,
-        'dataIni' :dataIni_date,
-        'dataFi' : dataFi_date,
-    }
+            'allotjament': allotjament,
+            'transportAnada': transport,
+            'transportTornada': transport1,
+            'activitats': activitats_sorted,
+            # Preu
+            'preu': preu,
+            # Més info x construir l'html
+            'numDies': (dataFi_date - dataIni_date).days - 1,
+            'mati': mati,
+            'tarda': tarda,
+            'nit': nit,
+            'teActivitats': teActivitats,
+            'dates': dates,
+            'dataIni': dataIni_date,
+            'dataFi': dataFi_date,
+            'ciutatIni': ciutatIni,
+            'ciutatFi': ciutatFi,
+            'pressupost': pressupost,
+        }
 
     return paquet
 
@@ -323,7 +388,7 @@ def interaccio_usuari():
             ciutatFi = request.form.get('ciutatFi')
             dataIni = datetime.strptime(str(request.form.get('dataIni')), "%Y-%m-%d").strftime("%d/%m/%Y")
             dataFi = datetime.strptime(str(request.form.get('dataFi')), "%Y-%m-%d").strftime("%d/%m/%Y")
-            pressupost = request.form.get('pressupost')
+            pressupost = float(request.form.get('pressupost'))
             centric = bool(request.form.get('centric', False))
             ludica = request.form.get('ludica')
             festiva = request.form.get('festiva')

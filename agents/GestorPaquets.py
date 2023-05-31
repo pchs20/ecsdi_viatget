@@ -122,18 +122,21 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
     if dataIni != dataFi:
         resposta_allotjaments = getPossiblesAllotjaments(dataIni, dataFi, centric, ciutatFi, pressupost)
 
-    possibles_transport1 = getPossiblesTransports(pressupost)
-    possibles_transport2 = getPossiblesTransports(pressupost)
+    if ciutatIni != ciutatFi:
+        possibles_transport1 = getPossiblesTransports(pressupost)
+        possibles_transport2 = getPossiblesTransports(pressupost)
 
     # Aquí faríem la planificació allotjament + transport
     if dataIni != dataFi:
         llista_allotjaments = resposta_allotjaments.triples((None, RDF.type, PANT.Allotjament))
         allotjament_obj = next(llista_allotjaments)[0]
-    llista_transports1 = possibles_transport1.triples((None, RDF.type, PANT.Transport))
-    transport1 = next(llista_transports1)[0]
-    llista_transports2 = possibles_transport2.triples((None, RDF.type, PANT.Transport))
-    llista_transports2 = list(llista_transports2)
-    transport2 = llista_transports2[1][0]
+
+    if ciutatIni != ciutatFi:
+        llista_transports1 = possibles_transport1.triples((None, RDF.type, PANT.Transport))
+        transport1 = next(llista_transports1)[0]
+        llista_transports2 = possibles_transport2.triples((None, RDF.type, PANT.Transport))
+        llista_transports2 = list(llista_transports2)
+        transport2 = llista_transports2[1][0]
 
     graf = Graph()
     paquet = URIRef('https://paquetTancat.org')
@@ -148,20 +151,22 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
         graf.add((paquet, PANT.teAllotjament, URIRef(allotjament_obj)))
 
     # Posem dades decidides del vol d'anada
-    graf.add((transport1, PANT.tipus, possibles_transport1.value(subject=transport1, predicate=PANT.tipus)))
-    graf.add((transport1, PANT.deLaCompanyia, possibles_transport1.value(subject=transport1, predicate=PANT.deLaCompanyia)))
-    graf.add((transport1, PANT.nom, possibles_transport1.value(subject=transport1, predicate=PANT.nom)))
-    preuTransp1 = float(possibles_transport1.value(subject=transport1, predicate=PANT.preu))
-    graf.add((transport1, PANT.preu, possibles_transport1.value(subject=transport1, predicate=PANT.preu)))
-    graf.add((paquet, PANT.teTransportAnada, URIRef(transport1)))
+    if ciutatIni != ciutatFi:
+        graf.add((transport1, PANT.tipus, possibles_transport1.value(subject=transport1, predicate=PANT.tipus)))
+        graf.add((transport1, PANT.deLaCompanyia, possibles_transport1.value(subject=transport1, predicate=PANT.deLaCompanyia)))
+        graf.add((transport1, PANT.nom, possibles_transport1.value(subject=transport1, predicate=PANT.nom)))
+        preuTransp1 = float(possibles_transport1.value(subject=transport1, predicate=PANT.preu))
+        graf.add((transport1, PANT.preu, possibles_transport1.value(subject=transport1, predicate=PANT.preu)))
+        graf.add((paquet, PANT.teTransportAnada, URIRef(transport1)))
 
     # Posem dades decidides del vol de tornada
-    graf.add((transport2, PANT.tipus, possibles_transport2.value(subject=transport2, predicate=PANT.tipus)))
-    graf.add((transport2, PANT.deLaCompanyia, possibles_transport2.value(subject=transport2, predicate=PANT.deLaCompanyia)))
-    graf.add((transport2, PANT.nom, possibles_transport2.value(subject=transport2, predicate=PANT.nom)))
-    preuTransp2 = float(possibles_transport2.value(subject=transport2, predicate=PANT.preu))
-    graf.add((transport2, PANT.preu, possibles_transport2.value(subject=transport2, predicate=PANT.preu)))
-    graf.add((paquet, PANT.teTransportTornada, URIRef(transport2)))
+    if ciutatIni != ciutatFi:
+        graf.add((transport2, PANT.tipus, possibles_transport2.value(subject=transport2, predicate=PANT.tipus)))
+        graf.add((transport2, PANT.deLaCompanyia, possibles_transport2.value(subject=transport2, predicate=PANT.deLaCompanyia)))
+        graf.add((transport2, PANT.nom, possibles_transport2.value(subject=transport2, predicate=PANT.nom)))
+        preuTransp2 = float(possibles_transport2.value(subject=transport2, predicate=PANT.preu))
+        graf.add((transport2, PANT.preu, possibles_transport2.value(subject=transport2, predicate=PANT.preu)))
+        graf.add((paquet, PANT.teTransportTornada, URIRef(transport2)))
 
 
     # PLANIFICACIÓ ACTIVITATS
@@ -201,8 +206,13 @@ def generar_paquet(ciutatIni, ciutatFi, dataIni, dataFi, pressupost,
             i += 1
 
     # CALCULAR EL PREU FINAL DEL PAQUET
-    preuFinal = round( preuTransp1 + preuTransp1, 2)
-    #preuFinal += round(numDies*preuAllotj)
+    preuFinal = 0
+    if dataIni != dataFi:
+        numDies += 1
+        preuFinal += round(numDies*preuAllotj)
+    if ciutatIni != ciutatFi:
+        preuFinal+= round( preuTransp1 + preuTransp1, 2)
+
     graf.add((paquet, PANT.preu, Literal(preuFinal)))
 
     return graf
