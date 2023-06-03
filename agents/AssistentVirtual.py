@@ -407,6 +407,8 @@ def interaccio_usuari():
                 return render_template('resultat.html', paquet=paquet)
         except ExcepcioGeneracioViatge as e:
             return render_template('formulari.html', error=e.motiu)
+        except Exception as e:
+            return render_template('formulari.html', error='No es pot generar un paquet amb el pressupost tant baix!')
 
 
 @app.route("/stop")
