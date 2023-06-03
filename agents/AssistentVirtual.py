@@ -402,6 +402,12 @@ def interaccio_usuari():
                 factura = fer_pagament(numT,tipusT,preu)
                 return render_template('factura.html', factura=factura)
             else:
+                if dataIni >= dataFi:
+                    raise ExcepcioGeneracioViatge(motiu='Dates introduïdes incorrectes: La data de final ha de ser, '
+                                                        'com a mínim, un dia posterior a la d\'inici')
+                if datetime.today() > datetime.strptime(dataIni, "%d/%m/%Y"):
+                    raise ExcepcioGeneracioViatge(motiu='Dates introduïdes incorrectes: El viatge no pot començar '
+                                                        'en el passat!')
                 paquet = demanar_planificacio(ciutatIni, ciutatFi, dataIni, dataFi, pressupost, centric,
                                               ludica, festiva, cultural, mati, tarda, nit)
                 return render_template('resultat.html', paquet=paquet)
