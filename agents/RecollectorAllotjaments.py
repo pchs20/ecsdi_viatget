@@ -7,9 +7,10 @@ from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
+import requests
 
 from flask import Flask, request
-from rdflib import Graph, Namespace, Literal, URIRef
+from rdflib import Graph, Namespace, URIRef
 from rdflib.namespace import RDF
 from rdflib.plugins.sparql import prepareQuery
 
@@ -240,6 +241,24 @@ def refresh_allotjaments():
     logger.info('Actualitzem la BD allotjaments')
     gr.serialize(destination='../bd/allotjaments.ttl', format='turtle')
 
+    server_url = "http://localhost:3030"
+    dataset_name = "Allotjaments"
+
+    # Set the endpoint URL for updating the dataset
+    update_url = f"{server_url}/{dataset_name}/data"
+
+    # Set the RDF data file path
+    rdf_file_path = "../bd/allotjaments.ttl"
+    with open(rdf_file_path, "rb") as rdf_file:
+        rdf_data = rdf_file.read()
+    response = requests.post(update_url, data=rdf_data, headers={"Content-Type": "application/turtle"})
+
+    # Check the response status
+    if response.status_code == 200:
+        print("RDF data saved successfully!")
+    else:
+        print(f"Failed to save RDF data. Status code: {response.status_code}")
+
     # Actualitzem la data de l'última actualització
     global ultimRefresh
     ultimRefresh = datetime.today()
@@ -274,7 +293,31 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
         LIMIT 5
     """ % (ciutat, preuMax, centric))
 
+    #query de tot allotjament
+    query_web = """
+        SELECT ?subject ?predicate ?object
+        WHERE {
+            ?subject ?predicate ?object
+        }
+        ORDER BY ?preu
+        LIMIT 5
+    """
+    print('query = ', query_web)
+
+    server_url = "http://localhost:3030"
+    dataset_name = "Allotjaments"
+
+    query_url = f"{server_url}/{dataset_name}/query"
+    response = requests.post(query_url, data={"query": query_web})
+
+    if response.status_code == 200:
+        results = response.json()
+        print(f"result query apache: {results}")
+    else:
+        print(f"Failed to execute SPARQL query. Status code: {response.status_code}")
+
     resultados = gbd.query(query).result
+    print('resultados = ', resultados)
     num_resultados = len(resultados)
     gr = Graph()
     gr.bind('PANT', PANT)
