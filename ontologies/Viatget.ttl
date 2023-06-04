@@ -14,7 +14,6 @@
 
 ###  http://webprotege.stanford.edu/informaDelPaquet
 <http://webprotege.stanford.edu/informaDelPaquet> rdf:type owl:ObjectProperty ;
-                                                  rdfs:subPropertyOf owl:topObjectProperty ;
                                                   rdfs:domain <http://webprotege.stanford.edu/PaquetTancat> ;
                                                   rdfs:range <http://webprotege.stanford.edu/ecsdi_viatget/Paquet> ;
                                                   rdfs:label "informa del paquet"@es .
@@ -38,7 +37,6 @@
 
 ###  http://webprotege.stanford.edu/ecsdi_viatget/deCiutat
 <http://webprotege.stanford.edu/ecsdi_viatget/deCiutat> rdf:type owl:ObjectProperty ;
-                                                        rdfs:subPropertyOf owl:topObjectProperty ;
                                                         rdfs:domain <http://webprotege.stanford.edu/ecsdi_viatget/ObtenirAllotjaments> ;
                                                         rdfs:range <http://webprotege.stanford.edu/Ciutat> ;
                                                         rdfs:label "de ciutat"@es .
@@ -81,7 +79,6 @@
 
 ###  http://webprotege.stanford.edu/ecsdi_viatget/teComAPuntFinal
 <http://webprotege.stanford.edu/ecsdi_viatget/teComAPuntFinal> rdf:type owl:ObjectProperty ;
-                                                               rdfs:subPropertyOf owl:topObjectProperty ;
                                                                rdfs:domain <http://webprotege.stanford.edu/DemanarViatge> ;
                                                                rdfs:range <http://webprotege.stanford.edu/Ciutat> ;
                                                                rdfs:label "te com a punt final"@es .

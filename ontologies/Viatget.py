@@ -5,7 +5,7 @@
 
  Translated to RDFlib from ontology https://ontologia.org#
 
- :Date 29/05/2023 13:44:46
+ :Date 04/06/2023 18:32:31
 """
 from rdflib import URIRef
 from rdflib.namespace import ClosedNamespace
