@@ -11,15 +11,10 @@ Pau Duran Manzano
 
 
 ## Pla per encendre
-1. SimpleDirectoryService (port 9000)
-2. AssistentVirtual (port 9001)
-3. Gestor de paquets (port 9002)
-4. ProveidorAllotjaments (port 9011)
-5. RecollectorAllotjaments (port 9010)
-6. ProveidorTransports (port 9021)
-7. RecollectorTransports (port 9020)
-8. ProveidorActivitats (port 9031)
-9. RecollectorActivitats (port 9030)
+1. Apache fuseki server
+2. SimpleDirectoryService
+3. Tots els actors
+4. Tots els agents
 
 
 ## Interacció
