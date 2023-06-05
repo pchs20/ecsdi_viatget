@@ -7,6 +7,7 @@ from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
+import requests
 
 from flask import Flask, request
 from rdflib import Graph, Namespace, URIRef
@@ -242,6 +243,27 @@ def refresh_activitats():
     logger.info('Actualitzem la BD activitats')
     gr.serialize(destination='../bd/activitats.ttl', format='turtle')
 
+    server_url = "http://localhost:3030"
+    dataset_name = "Activitats"
+
+    # Set the endpoint URL for updating the dataset
+    update_url = f"{server_url}/{dataset_name}/data"
+
+    # Set the RDF data file path
+    rdf_file_path = "../bd/activitats.ttl"
+    with open(rdf_file_path, "rb") as rdf_file:
+        rdf_data = rdf_file.read()
+    response = requests.post(update_url, data=rdf_data, headers={"Content-Type": "application/turtle"})
+
+    # Check the response status
+    if response.status_code == 200:
+        print("RDF data saved successfully!")
+    else:
+        print(f"Failed to save RDF data. Status code: {response.status_code}")
+
+    logger.info('Actualitzem la BD activitats')
+    gr.serialize(destination='../bd/activitats.ttl', format='turtle')
+
     # Actualitzem la data de l'última actualització
     global ultimRefresh
     ultimRefresh = datetime.today()
@@ -252,6 +274,18 @@ def obtenir_possibles_activitats(ciutat, franges, dataIni, dataFi):
     dif = today - ultimRefresh
     if dif > timedelta(days=1):
         refresh_activitats()
+
+    # Escriure les dades de la bd
+    server_url = "http://localhost:3030"
+    dataset_name = "Activitats"
+
+    query_url = f"{server_url}/{dataset_name}/get"
+    response = requests.get(query_url)
+
+    if response.status_code == 200:
+        print("activitats.ttl file has been created successfully.")
+    else:
+        print(f"Failed to execute SPARQL query. Status code: {response.status_code}")
 
     # Recuperem les dades
     gbd = Graph()

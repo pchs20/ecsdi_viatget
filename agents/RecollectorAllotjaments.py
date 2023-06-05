@@ -7,9 +7,10 @@ from multiprocessing import Process, Queue
 import logging
 import argparse
 import socket
+import requests
 
 from flask import Flask, request
-from rdflib import Graph, Namespace, Literal, URIRef
+from rdflib import Graph, Namespace, URIRef
 from rdflib.namespace import RDF
 from rdflib.plugins.sparql import prepareQuery
 
@@ -240,6 +241,24 @@ def refresh_allotjaments():
     logger.info('Actualitzem la BD allotjaments')
     gr.serialize(destination='../bd/allotjaments.ttl', format='turtle')
 
+    server_url = "http://localhost:3030"
+    dataset_name = "Allotjaments"
+
+    # Set the endpoint URL for updating the dataset
+    update_url = f"{server_url}/{dataset_name}/data"
+
+    # Set the RDF data file path
+    rdf_file_path = "../bd/allotjaments.ttl"
+    with open(rdf_file_path, "rb") as rdf_file:
+        rdf_data = rdf_file.read()
+    response = requests.post(update_url, data=rdf_data, headers={"Content-Type": "application/turtle"})
+
+    # Check the response status
+    if response.status_code == 200:
+        print("RDF data saved successfully!")
+    else:
+        print(f"Failed to save RDF data. Status code: {response.status_code}")
+
     # Actualitzem la data de l'última actualització
     global ultimRefresh
     ultimRefresh = datetime.today()
@@ -251,6 +270,18 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
     dif = today - ultimRefresh
     if dif > timedelta(days=1):
         refresh_allotjaments()
+
+    # Escriure les dades de la bd
+    server_url = "http://localhost:3030"
+    dataset_name = "Allotjaments"
+
+    query_url = f"{server_url}/{dataset_name}/get"
+    response = requests.get(query_url)
+
+    if response.status_code == 200:
+        print("allotjaments.ttl file has been created successfully.")
+    else:
+        print(f"Failed to execute SPARQL query. Status code: {response.status_code}")
 
 
     # Recuperem les dades
@@ -274,7 +305,10 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
         LIMIT 5
     """ % (ciutat, preuMax, centric))
 
+
+
     resultados = gbd.query(query).result
+    print('resultados = ', resultados)
     num_resultados = len(resultados)
     gr = Graph()
     gr.bind('PANT', PANT)
