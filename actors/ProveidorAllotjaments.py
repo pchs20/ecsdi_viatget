@@ -230,7 +230,7 @@ def obtenir_allotjaments():
             gr.add((allotjament, PANT.nom, Literal(random.choice(nomsAllotjaments[ciutat]))))
             gr.add((allotjament, PANT.centric, Literal(random.choice([True, False]))))
             gr.add((allotjament, PANT.teCiutat, URIRef(ciutatsObj[ciutat])))
-            gr.add((allotjament, PANT.preu, Literal(random.uniform(40.0, 200.0))))
+            gr.add((allotjament, PANT.preu, Literal(round(random.uniform(40.0, 200.0), 2))))
 
         i += 1
 

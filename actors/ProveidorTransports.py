@@ -242,7 +242,7 @@ def obtenir_transports():
             gr.add((transport, PANT.tipus, Literal(tipus_seleccionat)))
             gr.add((transport, PANT.deLaCompanyia, Literal(companyia_seleccionada)))
             gr.add((transport, PANT.nom, Literal(codi_seleccionat)))
-            gr.add((transport, PANT.preu, Literal(random.uniform(50.0, 200.0))))
+            gr.add((transport, PANT.preu, Literal(round(random.uniform(50.0, 200.0), 2))))
 
         i += 1
 

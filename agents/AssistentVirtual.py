@@ -381,7 +381,7 @@ def interaccio_usuari():
         if action == 'pagar':
             numT = request.form.get('numTargeta')
             tipusT = request.form.get('tipusTargeta')
-            preu = float(100)
+            preu = request.form.get('preu')
         else:
 
             ciutatIni = request.form.get('ciutatIni')
