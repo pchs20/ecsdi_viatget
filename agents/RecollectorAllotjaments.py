@@ -271,6 +271,18 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
     if dif > timedelta(days=1):
         refresh_allotjaments()
 
+    # Escriure les dades de la bd
+    server_url = "http://localhost:3030"
+    dataset_name = "Allotjaments"
+
+    query_url = f"{server_url}/{dataset_name}/get"
+    response = requests.get(query_url)
+
+    if response.status_code == 200:
+        print("allotjaments.ttl file has been created successfully.")
+    else:
+        print(f"Failed to execute SPARQL query. Status code: {response.status_code}")
+
 
     # Recuperem les dades
     gbd = Graph()
@@ -293,28 +305,7 @@ def obtenir_possibles_allotjaments(ciutat, data_ini, data_fi, preuMax, centric):
         LIMIT 5
     """ % (ciutat, preuMax, centric))
 
-    #query de tot allotjament
-    query_web = """
-        SELECT ?subject ?predicate ?object
-        WHERE {
-            ?subject ?predicate ?object
-        }
-        ORDER BY ?preu
-        LIMIT 5
-    """
-    print('query = ', query_web)
 
-    server_url = "http://localhost:3030"
-    dataset_name = "Allotjaments"
-
-    query_url = f"{server_url}/{dataset_name}/query"
-    response = requests.post(query_url, data={"query": query_web})
-
-    if response.status_code == 200:
-        results = response.json()
-        print(f"result query apache: {results}")
-    else:
-        print(f"Failed to execute SPARQL query. Status code: {response.status_code}")
 
     resultados = gbd.query(query).result
     print('resultados = ', resultados)
