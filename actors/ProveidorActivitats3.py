@@ -79,7 +79,7 @@ mss_cnt = 0
 
 # Datos del Agente
 ProveidorActivitats = Agent('ProveidorActivitats3',
-                  agn.ProveidorActivitats,
+                  agn.ProveidorActivitats3,
                   'http://%s:%d/comm' % (hostaddr, port),
                   'http://%s:%d/Stop' % (hostaddr, port))
 
